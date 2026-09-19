@@ -53,3 +53,18 @@ dkms.conf
 
 # debug information files
 *.dwo
+
+# Workspace
+.metadata/
+
+# Build output
+Debug/
+Release/
+
+# Generated files
+*.o
+*.d
+*.elf
+*.map
+*.hex
+*.bin
