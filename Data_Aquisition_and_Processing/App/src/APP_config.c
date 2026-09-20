@@ -78,7 +78,8 @@ const i2c_module_configuration i2c_config[] = {
 				STANDARD_MODE,				// i2c Speed mode - Standard or Fast mode
 				80,							// CCR Value . Calculated based on the formula in datasheet . CCR = PCLK1 / (2 × I2C clock) = 16,000,000 / (2 × 100,000)
 				17,							// Max Rise time. Calculated based on the formula . For standard speed , rise time is frequency + 1 = 16+1
-				ACK_ENABLED,
+				ACK_ENABLED,				// Acknoledgement is enabled
+				CLOCK_STRECH_ENABLE,		// Clock streching is enabled
 		},
 };
 

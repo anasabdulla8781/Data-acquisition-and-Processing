@@ -44,7 +44,17 @@ void i2c_init (const i2c_module_configuration* config , uint8_t i2c_module_count
 		i2c_set_clock_control_register(&config[iter]);
 		i2c_set_risetime(&config[iter]);
 		i2c_set_acknoledgement(&config[iter]);
+		i2c_set_clockstrech(&config[iter]);
 	}
+}
+
+
+void i2c_set_clockstrech (const i2c_module_configuration* config)
+{
+	i2c_structure* module_pointer = config->module_pointer;
+
+	module_pointer->CR1 &= ~(1<<7);											// Clear the current configuration in clock strech bit
+	module_pointer->CR1 |= ((config->clock_strech_enable_disable) << 7);	// Set or clear the Clock strech bit
 }
 
 void i2c_set_acknoledgement (const i2c_module_configuration* config)

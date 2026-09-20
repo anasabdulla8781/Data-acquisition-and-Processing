@@ -36,6 +36,7 @@ typedef struct
 	uint16_t ccr;
 	uint8_t max_rise_time;
 	uint8_t ack_enable_disable;
+	uint8_t clock_strech_enable_disable;
 }i2c_module_configuration;
 
 
@@ -56,11 +57,15 @@ typedef struct
 
 /// Differant speed modes
 #define STANDARD_MODE	0
-#define FAST_MODE	1
+#define FAST_MODE		1
 
 // ACKNOLEDGEMENT enable or disable
 #define ACK_DISABLED	0
 #define ACK_ENABLED		1
+
+// Clock streching enabled / Disabled
+#define CLOCK_STRECH_ENABLE		0
+#define CLOCK_STRECH_DISABLE	1
 
 
 /// Function declarations
@@ -70,6 +75,7 @@ extern void i2c_set_mode (const i2c_module_configuration* config);
 extern void i2c_set_clock_control_register (const i2c_module_configuration* config);
 extern void i2c_set_risetime (const i2c_module_configuration* config);
 extern void i2c_set_acknoledgement (const i2c_module_configuration* config);
+extern void i2c_set_clockstrech (const i2c_module_configuration* config);
 
 
 #endif /* INC_STM32_I2C_H_ */
