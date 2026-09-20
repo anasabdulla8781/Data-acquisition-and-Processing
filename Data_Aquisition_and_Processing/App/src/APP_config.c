@@ -75,6 +75,10 @@ const i2c_module_configuration i2c_config[] = {
 		{
 				I2C_1,						// Module number - Module number of I2C Module configured in the project
 				i2c1_ptr,					// Module pointer - Pointer to the address of the register map
+				STANDARD_MODE,				// i2c Speed mode - Standard or Fast mode
+				80,							// CCR Value . Calculated based on the formula in datasheet . CCR = PCLK1 / (2 × I2C clock) = 16,000,000 / (2 × 100,000)
+				17,							// Max Rise time. Calculated based on the formula . For standard speed , rise time is frequency + 1 = 16+1
+				ACK_ENABLED,
 		},
 };
 

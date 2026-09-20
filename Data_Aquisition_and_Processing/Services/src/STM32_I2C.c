@@ -40,10 +40,57 @@ void i2c_init (const i2c_module_configuration* config , uint8_t i2c_module_count
 	{
 		i2c_clock_enable(config[iter].module_number);
 		i2c_reset_peripheral(config[iter].module_pointer);
+		i2c_set_mode(&config[iter]);
+		i2c_set_clock_control_register(&config[iter]);
+		i2c_set_risetime(&config[iter]);
+		i2c_set_acknoledgement(&config[iter]);
 	}
 }
 
+void i2c_set_acknoledgement (const i2c_module_configuration* config)
+{
+	i2c_structure* module_pointer = config->module_pointer;
 
+	module_pointer->CR1 &= ~(1<<10);								// Clear the current selection in the ack bit
+	module_pointer->CR1 |= ((config->ack_enable_disable) << 10);	// Set or clear the ack bit
+}
+
+
+void i2c_set_risetime (const i2c_module_configuration* config)
+{
+	i2c_structure* module_pointer = config->module_pointer;
+
+	module_pointer->TRISE &= ~(0x3F);					// Cleared the current configuration for rise time
+	module_pointer->TRISE |= config->max_rise_time;		// Max rise time
+}
+
+void i2c_set_clock_control_register (const i2c_module_configuration* config)
+{
+	uint16_t clock_control_register = config->ccr;
+	i2c_structure* module_pointer = config->module_pointer;
+
+
+	clock_control_register &= (0x0FFF);					// Clear the msb 4 bits of the CCR value mentioned
+	module_pointer->CCR &= ~(0x0FFF);					// Clear the first 11 bits in the CCR register
+	module_pointer->CCR |= clock_control_register;		// Set the clock control register 12 bits
+
+
+}
+
+void i2c_set_mode (const i2c_module_configuration* config)
+{
+	uint8_t i2c_mode = config->i2c_speed_mode;
+	i2c_structure* module_pointer = config->module_pointer;
+	if ((i2c_mode == STANDARD_MODE) || (i2c_mode == FAST_MODE))
+	{
+		module_pointer->CCR &= ~(1U << 15);				// Clear the CCR bit for speed mode
+		module_pointer->CCR |= (i2c_mode<<15);			// Set the mode mentioned
+	}
+	else
+	{
+		// Do nothing
+	}
+}
 
 void i2c_reset_peripheral (i2c_structure* module_pointer)
 {

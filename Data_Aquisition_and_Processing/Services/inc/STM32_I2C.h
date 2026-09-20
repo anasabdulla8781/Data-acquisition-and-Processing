@@ -32,6 +32,10 @@ typedef struct
 {
 	uint8_t module_number;
 	i2c_structure* module_pointer;
+	uint8_t i2c_speed_mode;
+	uint16_t ccr;
+	uint8_t max_rise_time;
+	uint8_t ack_enable_disable;
 }i2c_module_configuration;
 
 
@@ -50,10 +54,22 @@ typedef struct
 #define I2C_2	1
 #define I2C_3	2
 
+/// Differant speed modes
+#define STANDARD_MODE	0
+#define FAST_MODE	1
+
+// ACKNOLEDGEMENT enable or disable
+#define ACK_DISABLED	0
+#define ACK_ENABLED		1
+
 
 /// Function declarations
 extern void i2c_init (const i2c_module_configuration* config , uint8_t i2c_module_count);
 extern void i2c_reset_peripheral (i2c_structure* module_pointer);
+extern void i2c_set_mode (const i2c_module_configuration* config);
+extern void i2c_set_clock_control_register (const i2c_module_configuration* config);
+extern void i2c_set_risetime (const i2c_module_configuration* config);
+extern void i2c_set_acknoledgement (const i2c_module_configuration* config);
 
 
 #endif /* INC_STM32_I2C_H_ */
