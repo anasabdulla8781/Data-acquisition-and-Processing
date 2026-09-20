@@ -38,6 +38,11 @@ typedef struct
 	uint8_t ack_enable_disable;
 	uint8_t clock_strech_enable_disable;
 	uint8_t error_interrupt_enable_disable;
+	uint8_t peripheral_clock_frequency;
+	uint8_t buffer_interrupt_enable_disable;
+	uint8_t event_interrupt_enable_disable;
+	uint8_t dma_enable_disable;
+	uint8_t i2c_enable_disable;
 }i2c_module_configuration;
 
 
@@ -72,6 +77,22 @@ typedef struct
 #define ERROR_INTERRUPT_DISABLE		0
 #define ERROR_INTERRUPT_ENABLE		1
 
+// Buffer interrupts enable and disable ( Interrupts for TXE and RXNE )
+#define BUFFER_INTERRUPT_ENABLE		1
+#define BUFFER_INTERRUPT_DISABLE	0
+
+// Event interrupt enable and disable ( Interrupts for various events)
+#define EVENT_INTERRUPT_ENABLE		1
+#define EVENT_INTERRUPT_DISABLE		0
+
+// DMA Enable / Disable
+#define DMA_DISABLE	0
+#define DMA_ENABLE	1
+
+// I2C Enabled / Disabled
+#define I2C_ENABLE	1
+#define I2C_DISABLE	0
+
 
 /// Function declarations
 extern void i2c_init (const i2c_module_configuration* config , uint8_t i2c_module_count);
@@ -82,6 +103,11 @@ extern void i2c_set_risetime (const i2c_module_configuration* config);
 extern void i2c_set_acknoledgement (const i2c_module_configuration* config);
 extern void i2c_set_clockstrech (const i2c_module_configuration* config);
 extern void i2c_set_error_interrupt_enable (const i2c_module_configuration* config);
+extern void i2c_set_frequency(const i2c_module_configuration* config);
+extern void i2c_set_buffer_interrupt_enable(const i2c_module_configuration* config);
+extern void i2c_set_event_interrupt_enable(const i2c_module_configuration* config);
+extern void i2c_dma_enable(const i2c_module_configuration* config);
+extern void i2c_enable(const i2c_module_configuration* config);
 
 
 #endif /* INC_STM32_I2C_H_ */

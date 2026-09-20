@@ -45,10 +45,55 @@ void i2c_init (const i2c_module_configuration* config , uint8_t i2c_module_count
 		i2c_set_risetime(&config[iter]);
 		i2c_set_acknoledgement(&config[iter]);
 		i2c_set_clockstrech(&config[iter]);
+		i2c_set_frequency(&config[iter]);
 		i2c_set_error_interrupt_enable(&config[iter]);
+		i2c_set_event_interrupt_enable(&config[iter]);
+		i2c_set_buffer_interrupt_enable(&config[iter]);
+		i2c_dma_enable(&config[iter]);
+		i2c_enable(&config[iter]);
 	}
 }
 
+void i2c_enable(const i2c_module_configuration* config)
+{
+	i2c_structure* module_pointer = config->module_pointer;
+	module_pointer->CR1 &= ~(1<<0);											// Clear the current I2C Enable selection
+	module_pointer->CR1 |= ((config->i2c_enable_disable) << 0);				// Set the configured I2C Enable selection
+}
+
+
+void i2c_DMA_enable(const i2c_module_configuration* config)
+{
+	i2c_structure* module_pointer = config->module_pointer;
+	module_pointer->CR2 &= ~(1<<11);											// Clear the current DMA selection
+	module_pointer->CR2 |= ((config->dma_enable_disable) << 11);				// Set the configured DMA selection
+}
+
+void i2c_set_event_interrupt_enable(const i2c_module_configuration* config)
+{
+	i2c_structure* module_pointer = config->module_pointer;
+	module_pointer->CR2 &= ~(1<<9);												// Clear the current event interrupt enable selection
+	module_pointer->CR2 |= ((config->event_interrupt_enable_disable) << 9);		// Set the configured event interrupt enable selection bit
+}
+
+
+void i2c_set_buffer_interrupt_enable(const i2c_module_configuration* config)
+{
+	i2c_structure* module_pointer = config->module_pointer;
+	module_pointer->CR2 &= ~(1<<10);											// Clear the current buffer interrupt enable selection
+	module_pointer->CR2 |= ((config->buffer_interrupt_enable_disable) << 10);	// Set the configured buffer interrupt enable selection bit
+}
+
+void i2c_set_frequency(const i2c_module_configuration* config)
+{
+	i2c_structure* module_pointer = config->module_pointer;
+
+	if ((config->peripheral_clock_frequency <=50) && (config->peripheral_clock_frequency >=1))
+	{
+		module_pointer->CR2 &= ~(0x3F);										// Clear the current peripheral frequency settings
+		module_pointer->CR2 |= (config->peripheral_clock_frequency);		// Set the peripheral clock frequency
+	}
+}
 
 void i2c_set_error_interrupt_enable (const i2c_module_configuration* config)
 {
@@ -122,55 +167,4 @@ void i2c_reset_peripheral (i2c_structure* module_pointer)
 	{
 		// Do nothing
 	}
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void i2c_config_init(i2c_structure* i2c_ptr)
-{
-	/// Step 1 - Reset I2C
-	i2c_ptr->CR1 |= (1<<15);				/// Set the 15th bit to 1 to reset the I2C Configurations.
-	i2c_ptr->CR1 &= ~ (1<<15);				/// Now cleared the bit for releasing i2c from reset state
-
-	/// Step 2 - Set the frequency for APB (APB Frequency)
-	i2c_ptr->CR2 &= ~ (0x3F); 				/// Clearing the first 6 bits to add frequecy here
-	i2c_ptr->CR2 |= 16;						/// We are using HSI Without any prescalar . So 16MHZ frequency
-
-	/// Step 3 - Set the clock speed of the I2C
-	i2c_ptr->CCR &= ~(0xFFF);				/// Clear all the bits for CCR
-	i2c_ptr->CCR |= 80;						/// Set the clock frequency to 80
-	i2c_ptr->CCR &= ~(1 << 15);				/// Purposefully clearing the Fast mode
-
-	/// Step 4 - Configure TRISE (Standard mode, 16 MHz)
-	i2c_ptr->TRISE = 17;
-
-	/// Step 5 - Turning ON i2c
-	i2c_ptr->CR1 |= (1U << 0);
-
 }
