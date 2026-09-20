@@ -66,6 +66,25 @@ const Watchdog_Module_Config watchdog_config = {
 
 // ****************************** WATCHDOG Configuration - END **********************************************************
 
+
+
+// ******************************  I2C Configuration - START *************************************************************
+
+
+const i2c_module_configuration i2c_config[] = {
+		{
+				I2C_1,						// Module number - Module number of I2C Module configured in the project
+				i2c1_ptr,					// Module pointer - Pointer to the address of the register map
+		},
+};
+
+const uint8_t i2c_config_size = sizeof (i2c_config) / sizeof(i2c_config[0]);
+
+// ******************************  I2C Configuration - END *************************************************************
+
+
+
+
 /// ADC Buffer initialisation
 volatile uint32_t adc_measurement[3] = {0u};
 

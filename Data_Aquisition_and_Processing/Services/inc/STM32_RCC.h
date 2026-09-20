@@ -79,7 +79,6 @@ typedef struct
 #define DMA2	2
 
 
-
 /// Macros for GPIO and its clock enable
 
 #define GPIOA	0
@@ -109,6 +108,11 @@ typedef struct
 #define SOFTWARE_RESET					6
 #define UNKNOWN_RESET					7
 
+
+// Macros for I2C Modules
+#define I2C_1	0
+#define I2C_2	1
+#define I2C_3	2
 
 struct ADC_structure;
 

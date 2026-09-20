@@ -10,13 +10,53 @@
 
 
 
+// Pin configurations for the I2C
+// Step 1 - Configure the clock for I2C ( Enable the bit21 in APB1enr register )
+// Step 2 - Configure the Pin pb6 and pb7 in alternate function mode (Set Mode register bit [12:13] and [14:15] to 0x10 )
+// Step 3 - Configure the AF4 Mode in AFRL register for both  SCL and SDA ( Set [24:27] and [28:31] t0 0x0100 )
+// Step 4 - Setup the output type to Open drain
+
+
+// I2C Peripheral configurations
+// Step 1 - Set the software reset bit in init ( This will make sure the Peripheral get reset , eliminate unnecessory i2c errors - Bit 15 in the CR1) . And then clear it to avoid further resets in the peripheral
+// Step 2 - Set the mode in standard mode for the moement ( 100khz is enough - Bit 15 in ccr set to 0 )
+// Step 3 - Set the clock control register in CCR [0-11] to 80 since we are trying for the standard speed with 16mhz clock speed
+// Step 4 - Configure the maximum rise time in trise register ( For standard mode , its 17 ( 16MHZ clock ) )
+// Step 5 - Set the acknolodge bit in CR1- Set 1 ( CR1 - BIT 10 - So ackoledgement is enabled in runtime )
+// Step 6 - Set the clock streching to enabled ( CR1 - Bit 7 to 0 )
+// Step 7 - Set the error interrupt enable in CR2 - So we can handle all sort of the errors in handler
+// Step 8 - Set the frequence to 16MHZ since thats the APB frequency in the freq bits in CR2
+// Step 9 - Enable DMA for so transission and reception can happen torhough that  Bit 11 in CR2 ( DMA Need to configured seperately )
+// Step 10 - Set ITBUFEN to 0 since we dont need to handle the data through Interrpts . Handling throguh DMA
+// Step 11 - Set the ITEVTEN . Event interrupt enable in CR2 . This will make sure the interrupts are triggering for events
+// Step 11 - Set the PE bit to 1 ( Bit 0 - Peripheral enable bit in CR1 , This will make the peripheral work .. and hence the DMA should be configured before this)
+
+
+// DMA Configurations - Will do it later
+
+void i2c_init (const i2c_module_configuration* config , uint8_t i2c_module_count)
+{
+	for (uint8_t iter = 0 ; iter <i2c_module_count ; iter++)
+	{
+		i2c_clock_enable(config[iter].module_number);
+		i2c_reset_peripheral(config[iter].module_pointer);
+	}
+}
 
 
 
-
-
-
-
+void i2c_reset_peripheral (i2c_structure* module_pointer)
+{
+	if ((module_pointer == i2c1_ptr) ||(module_pointer == i2c2_ptr) || (module_pointer == i2c3_ptr))
+	{
+		module_pointer->CR1 |= (1<<15);					// Set the reset bit . Will reset the peripheral
+		module_pointer->CR1 &= ~(1<<15);				// Clear the reset bit . No more reset happens
+	}
+	else
+	{
+		// Do nothing
+	}
+}
 
 
 

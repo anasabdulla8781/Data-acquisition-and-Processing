@@ -7,7 +7,6 @@
 
 
 #include <STM32_RCC.h>
-#include <STM32_I2C.h>
 #include <STM32_SPI.h>
 #include <STM32_UART.h>
 
@@ -40,17 +39,9 @@ void usart_clock_enable(uint8_t module_number)
 
 void i2c_clock_enable(uint8_t module)
 {
-	if (module == I2C_1)
+	if ((module <= I2C_3) && (module >= I2C_1))
 	{
-		rcc_ptr->APB1ENR |= (1<<21);						/// Enabled the clock for I2C1 Module
-	}
-	else if(module == I2C_2)
-	{
-		rcc_ptr->APB1ENR |= (1<<22);						/// Enabled the clock for I2C2 Module
-	}
-	else if(module == I2C_3)
-	{
-		rcc_ptr->APB1ENR |= (1<<23);						/// Enabled the clock for I2C3 Module
+		rcc_ptr->APB1ENR |= (1<<(21+module));						/// Enabled the clock for I2C1 Module
 	}
 	else
 	{
