@@ -37,6 +37,7 @@ typedef struct
 	uint8_t max_rise_time;
 	uint8_t ack_enable_disable;
 	uint8_t clock_strech_enable_disable;
+	uint8_t error_interrupt_enable_disable;
 }i2c_module_configuration;
 
 
@@ -67,6 +68,10 @@ typedef struct
 #define CLOCK_STRECH_ENABLE		0
 #define CLOCK_STRECH_DISABLE	1
 
+// Error interrupts macros
+#define ERROR_INTERRUPT_DISABLE		0
+#define ERROR_INTERRUPT_ENABLE		1
+
 
 /// Function declarations
 extern void i2c_init (const i2c_module_configuration* config , uint8_t i2c_module_count);
@@ -76,6 +81,7 @@ extern void i2c_set_clock_control_register (const i2c_module_configuration* conf
 extern void i2c_set_risetime (const i2c_module_configuration* config);
 extern void i2c_set_acknoledgement (const i2c_module_configuration* config);
 extern void i2c_set_clockstrech (const i2c_module_configuration* config);
+extern void i2c_set_error_interrupt_enable (const i2c_module_configuration* config);
 
 
 #endif /* INC_STM32_I2C_H_ */

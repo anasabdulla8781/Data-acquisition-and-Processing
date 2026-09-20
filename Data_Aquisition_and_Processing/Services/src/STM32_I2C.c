@@ -25,7 +25,7 @@
 // Step 5 - Set the acknolodge bit in CR1- Set 1 ( CR1 - BIT 10 - So ackoledgement is enabled in runtime )
 // Step 6 - Set the clock streching to enabled ( CR1 - Bit 7 to 0 )
 // Step 7 - Set the error interrupt enable in CR2 - So we can handle all sort of the errors in handler
-// Step 8 - Set the frequence to 16MHZ since thats the APB frequency in the freq bits in CR2
+// Step 8 - Set the frequency to 16MHZ since thats the APB frequency in the freq bits in CR2
 // Step 9 - Enable DMA for so transission and reception can happen torhough that  Bit 11 in CR2 ( DMA Need to configured seperately )
 // Step 10 - Set ITBUFEN to 0 since we dont need to handle the data through Interrpts . Handling throguh DMA
 // Step 11 - Set the ITEVTEN . Event interrupt enable in CR2 . This will make sure the interrupts are triggering for events
@@ -45,9 +45,18 @@ void i2c_init (const i2c_module_configuration* config , uint8_t i2c_module_count
 		i2c_set_risetime(&config[iter]);
 		i2c_set_acknoledgement(&config[iter]);
 		i2c_set_clockstrech(&config[iter]);
+		i2c_set_error_interrupt_enable(&config[iter]);
 	}
 }
 
+
+void i2c_set_error_interrupt_enable (const i2c_module_configuration* config)
+{
+	i2c_structure* module_pointer = config->module_pointer;
+
+	module_pointer->CR2 &= ~(1<<8);											// Clear the current configuration of the error interrupt enable bit
+	module_pointer->CR2 |= ((config->error_interrupt_enable_disable) << 8);	// Set the error interrupt enable bit
+}
 
 void i2c_set_clockstrech (const i2c_module_configuration* config)
 {

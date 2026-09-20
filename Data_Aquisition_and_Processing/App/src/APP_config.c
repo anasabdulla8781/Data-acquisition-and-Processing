@@ -80,6 +80,7 @@ const i2c_module_configuration i2c_config[] = {
 				17,							// Max Rise time. Calculated based on the formula . For standard speed , rise time is frequency + 1 = 16+1
 				ACK_ENABLED,				// Acknoledgement is enabled
 				CLOCK_STRECH_ENABLE,		// Clock streching is enabled
+				ERROR_INTERRUPT_ENABLE,		// Enabled the interrupts logging on errors
 		},
 };
 
