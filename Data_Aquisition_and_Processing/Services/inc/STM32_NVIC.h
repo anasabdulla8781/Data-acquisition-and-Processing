@@ -44,6 +44,8 @@ typedef struct
 #define ENABLE_TIMER4_INTERRUPT	1<<30
 #define ENABLE_EXTIO_INTERRUPT	1<<6
 #define ENABLE_USART2_INTERRUPT 1<<6
+#define ENABLE_I2C1_EVENT_INTERRUPT	1<<31
+#define ENABLE_I2C1_ERROR_INTERRUPT	1<<32
 
 /// Nested vector table
 

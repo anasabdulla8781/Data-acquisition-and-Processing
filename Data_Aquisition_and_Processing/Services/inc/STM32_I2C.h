@@ -14,6 +14,7 @@
 
 /// I2C Memory map strucutre
 
+/// Structure for the Registers
 typedef struct
 {
 	volatile uint32_t	CR1;			/// Control register 1
@@ -28,6 +29,7 @@ typedef struct
 	volatile uint32_t	FLTR;
 }i2c_structure;
 
+/// Structure for the project configurations
 typedef struct
 {
 	uint8_t module_number;
@@ -44,6 +46,28 @@ typedef struct
 	uint8_t dma_enable_disable;
 	uint8_t i2c_enable_disable;
 }i2c_module_configuration;
+
+/// Structure for the transactions  ( Application layer has to use to share the slave and register info to the driver ) - Differant structures for each sensors
+
+typedef struct
+{
+	i2c_structure* module_pointer;
+	uint8_t slave_address;
+	uint8_t start_register_address;
+	uint8_t direction;
+	uint8_t data_length;
+	uint8_t* result_array;
+}i2c_transaction;
+
+
+/// Structure hold by I2C for transaction control ( Each driver will have seperate onces , we will arrange in common array )
+typedef struct
+{
+	i2c_transaction active_transaction;
+	i2c_structure* module_pointer;
+	uint8_t bus_state;
+	uint8_t driver_status;
+}i2c_driver;
 
 
 #define I2C1_BASEADDRESS	0x40005400
@@ -93,6 +117,19 @@ typedef struct
 #define I2C_ENABLE	1
 #define I2C_DISABLE	0
 
+// OK and NOT OK
+#define E_NOT_OK	0
+#define E_OK		1
+
+// Bus status - What exactly the status of the bus now
+#define I2C_BUS_IDLE	0
+#define I2C_BUS_BUSY	1
+
+// Driver state - In what state the driver is currently
+#define I2C_DRIVER_IDLE	0
+#define I2C_DRIVER_BUSY	1
+
+// Global variables declaration
 
 /// Function declarations
 extern void i2c_init (const i2c_module_configuration* config , uint8_t i2c_module_count);
@@ -108,6 +145,10 @@ extern void i2c_set_buffer_interrupt_enable(const i2c_module_configuration* conf
 extern void i2c_set_event_interrupt_enable(const i2c_module_configuration* config);
 extern void i2c_dma_enable(const i2c_module_configuration* config);
 extern void i2c_enable(const i2c_module_configuration* config);
+
+
+extern void i2c_start(i2c_transaction transaction_structure);
+extern uint8_t i2c_get_driver_info(i2c_transaction transaction_structure , i2c_driver** driver_info);
 
 
 #endif /* INC_STM32_I2C_H_ */

@@ -7,6 +7,7 @@
 
 
 #include <STM32_I2C.h>
+#include <stddef.h>
 
 
 
@@ -33,6 +34,10 @@
 
 
 // DMA Configurations - Will do it later
+
+
+/// **************************************** Module configurations - Start ************************************************
+
 
 void i2c_init (const i2c_module_configuration* config , uint8_t i2c_module_count)
 {
@@ -167,4 +172,53 @@ void i2c_reset_peripheral (i2c_structure* module_pointer)
 	{
 		// Do nothing
 	}
+}
+
+/// **************************************** Module configurations - End ************************************************
+
+
+/// **************************************** Module Functionalities - Start ************************************************
+
+
+// Run time configurations of the I2C Module - Not fixed . This will get updated based on the application request
+
+static i2c_driver i2c_drivers_configured[] = {
+		{
+				.module_pointer = i2c1_ptr,
+				.bus_state = I2C_BUS_IDLE,
+				.driver_status = I2C_DRIVER_IDLE,
+		},
+};
+
+static const uint8_t configured_i2c_devices = sizeof(i2c_drivers_configured)/sizeof(i2c_drivers_configured[0]);
+
+void i2c_start(i2c_transaction transaction_structure)
+{
+	i2c_driver* driver_info = NULL;
+
+	if (i2c_get_driver_info(transaction_structure, &driver_info) == E_OK)											//	Get the driver corresponding to the transaction mentioned
+	{
+		if (driver_info->driver_status == I2C_DRIVER_IDLE)
+		{
+			i2c_structure*module_ptr = driver_info->module_pointer;
+			driver_info->active_transaction = transaction_structure;												// The driver is ready to take the transaction , so copied the contents to the driver structure
+			driver_info->driver_status = I2C_DRIVER_BUSY;															// Set the driver to busy to avoid further transactions ( if  another start request comes for the same bus )
+			module_ptr->CR1 |= (1<<8);																				// Set the start bit for the module we wanted to communicate . This will clear automatically by HW after setting the start condition
+		}
+	}
+
+}
+
+
+uint8_t i2c_get_driver_info(i2c_transaction transaction_structure , i2c_driver** driver_info)
+{
+	for (uint8_t iter = 0 ; iter<configured_i2c_devices; iter++)
+	{
+		if (transaction_structure.module_pointer == i2c_drivers_configured[iter].module_pointer)
+		{
+			*driver_info = &i2c_drivers_configured[iter];
+			return E_OK;
+		}
+	}
+	return E_NOT_OK;
 }

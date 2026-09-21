@@ -28,6 +28,13 @@ void nvic_init(uint8_t interrupt_number)
 {
 	switch(interrupt_number)
 	{
+
+		case 6:
+			/// Setting the priority
+			nvic_ptr->IPR[6] = (5 << 4);
+			// enabling the interrput
+			nvic_ptr->ISER[0] |= ENABLE_EXTIO_INTERRUPT;
+			break;
 		case 28:
 			/// Setting the priority for this interrupt
 			nvic_ptr->IPR[28] = (5 << 4);
@@ -39,15 +46,21 @@ void nvic_init(uint8_t interrupt_number)
 			nvic_ptr->ISER[0] |= ENABLE_TIMER4_INTERRUPT;
 			break;
 
-		case 6:
-			/// Setting the priority
-			nvic_ptr->IPR[6] = (5 << 4);
-			// enabling the interrput
-			nvic_ptr->ISER[0] |= ENABLE_EXTIO_INTERRUPT;
+		case 31:
+			/// Setting the priority for this interrupt ( Needed for the Free rtos implimentation )
+			nvic_ptr->IPR[31] = (5 << 4);
+			// Enable the interrupt
+			nvic_ptr->ISER[0] |= ENABLE_I2C1_EVENT_INTERRUPT;
 			break;
-
+		case 32:
+			/// Setting the priority for this interrupt ( Needed for the Free rtos implimentation )
+			nvic_ptr->IPR[32] = (5 << 4);
+			// Enable the interrupt
+			nvic_ptr->ISER[1] |= ENABLE_I2C1_ERROR_INTERRUPT;
+			break;
 		case 38:
 			nvic_ptr->ISER[1] |= ENABLE_USART2_INTERRUPT;
+			break;
 
 		default:
 			break;

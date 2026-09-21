@@ -70,7 +70,7 @@ const Watchdog_Module_Config watchdog_config = {
 
 // ******************************  I2C Configuration - START *************************************************************
 
-
+// Init configurations for I2C Module - Fixed
 const i2c_module_configuration i2c_config[] = {
 		{
 				I2C_1,						// Module number - Module number of I2C Module configured in the project
@@ -90,6 +90,7 @@ const i2c_module_configuration i2c_config[] = {
 };
 
 const uint8_t i2c_config_size = sizeof (i2c_config) / sizeof(i2c_config[0]);
+
 
 // ******************************  I2C Configuration - END *************************************************************
 
