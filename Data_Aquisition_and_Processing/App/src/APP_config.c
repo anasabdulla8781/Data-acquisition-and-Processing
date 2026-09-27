@@ -127,7 +127,22 @@ const uint8_t adc_module_config_size = sizeof(adc_module_config)/sizeof(adc_modu
 // *******************************************************************************************
 /// The dma streams to be configured for this project
 const DMA_Stream_Config dma_stream_config[] = {
-		{	DMA2,	dma2_ptr ,	STREAM0,	DMA2_STREAM0_ADC1,	PERIPHERAL_TO_MEMORY,	&(adc1_ptr->DR),	&adc_measurement[0],	adc1_channel_count,	PERIPHERAL_DATA_REG_32BIT,	MEMORY_SIZE_16BIT,	MEMORY_INCREMENT_ENABLE,	PERIPHERAL_INCREMENT_DISABLE,	CIRCULAR_MODE_ENABLE,	HIGH_PRIORITY,},
+		{
+				DMA2,
+				dma2_ptr ,
+				STREAM0,
+				DMA2_STREAM0_ADC1,
+				PERIPHERAL_TO_MEMORY,
+				&(adc1_ptr->DR),
+				&adc_measurement[0],
+				adc1_channel_count,
+				PERIPHERAL_DATA_REG_32BIT,
+				MEMORY_SIZE_16BIT,
+				MEMORY_INCREMENT_ENABLE,
+				PERIPHERAL_INCREMENT_DISABLE,
+				CIRCULAR_MODE_ENABLE,
+				HIGH_PRIORITY,
+		},
 		{	DMA2,	dma2_ptr ,	STREAM3,	DMA2_STREAM3_ADC2,	PERIPHERAL_TO_MEMORY,	&(adc2_ptr->DR),	&adc_measurement[2],	adc2_channel_count,	PERIPHERAL_DATA_REG_32BIT,	MEMORY_SIZE_16BIT,	MEMORY_INCREMENT_ENABLE,	PERIPHERAL_INCREMENT_DISABLE,	CIRCULAR_MODE_ENABLE,	HIGH_PRIORITY,},
 };
 
