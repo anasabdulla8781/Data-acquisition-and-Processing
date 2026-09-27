@@ -55,4 +55,8 @@ extern const uint8_t dma_stream_count;
 /// ADC Buffer
 extern volatile uint32_t adc_measurement[3];
 
+/// I2C
+extern const i2c_module_configuration i2c_config[];
+extern const uint8_t i2c_config_size ;
+
 #endif /* INC_APP_CONFIG_H_ */

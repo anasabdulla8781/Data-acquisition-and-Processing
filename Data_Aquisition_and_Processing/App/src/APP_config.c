@@ -66,6 +66,37 @@ const Watchdog_Module_Config watchdog_config = {
 
 // ****************************** WATCHDOG Configuration - END **********************************************************
 
+
+
+// ******************************  I2C Configuration - START *************************************************************
+
+// Init configurations for I2C Module - Fixed
+const i2c_module_configuration i2c_config[] = {
+		{
+				I2C_1,						// Module number - Module number of I2C Module configured in the project
+				i2c1_ptr,					// Module pointer - Pointer to the address of the register map
+				STANDARD_MODE,				// i2c Speed mode - Standard or Fast mode
+				80,							// CCR Value . Calculated based on the formula in datasheet . CCR = PCLK1 / (2 × I2C clock) = 16,000,000 / (2 × 100,000)
+				17,							// Max Rise time. Calculated based on the formula . For standard speed , rise time is frequency + 1 = 16+1
+				ACK_ENABLED,				// Acknoledgement is enabled
+				CLOCK_STRECH_ENABLE,		// Clock streching is enabled
+				ERROR_INTERRUPT_ENABLE,		// Enabled the interrupts logging on errors
+				16,							// Peripheral clock frequency - 16 Mhz frequency
+				BUFFER_INTERRUPT_ENABLE,	// Buffer interrupt is disabled - We dont need that since we are using DMA
+				EVENT_INTERRUPT_ENABLE,		// Event interrupt is enabeld - We need to check events in ISR to write the next operations
+				DMA_ENABLE,					// Enabled the DMA ( Make sure DMA is configured before enabling it )
+				I2C_ENABLE,					// Enabled I2C . Last step , the peripheral will be working now
+		},
+};
+
+const uint8_t i2c_config_size = sizeof (i2c_config) / sizeof(i2c_config[0]);
+
+
+// ******************************  I2C Configuration - END *************************************************************
+
+
+
+
 /// ADC Buffer initialisation
 volatile uint32_t adc_measurement[3] = {0u};
 
@@ -96,7 +127,22 @@ const uint8_t adc_module_config_size = sizeof(adc_module_config)/sizeof(adc_modu
 // *******************************************************************************************
 /// The dma streams to be configured for this project
 const DMA_Stream_Config dma_stream_config[] = {
-		{	DMA2,	dma2_ptr ,	STREAM0,	DMA2_STREAM0_ADC1,	PERIPHERAL_TO_MEMORY,	&(adc1_ptr->DR),	&adc_measurement[0],	adc1_channel_count,	PERIPHERAL_DATA_REG_32BIT,	MEMORY_SIZE_16BIT,	MEMORY_INCREMENT_ENABLE,	PERIPHERAL_INCREMENT_DISABLE,	CIRCULAR_MODE_ENABLE,	HIGH_PRIORITY,},
+		{
+				DMA2,
+				dma2_ptr ,
+				STREAM0,
+				DMA2_STREAM0_ADC1,
+				PERIPHERAL_TO_MEMORY,
+				&(adc1_ptr->DR),
+				&adc_measurement[0],
+				adc1_channel_count,
+				PERIPHERAL_DATA_REG_32BIT,
+				MEMORY_SIZE_16BIT,
+				MEMORY_INCREMENT_ENABLE,
+				PERIPHERAL_INCREMENT_DISABLE,
+				CIRCULAR_MODE_ENABLE,
+				HIGH_PRIORITY,
+		},
 		{	DMA2,	dma2_ptr ,	STREAM3,	DMA2_STREAM3_ADC2,	PERIPHERAL_TO_MEMORY,	&(adc2_ptr->DR),	&adc_measurement[2],	adc2_channel_count,	PERIPHERAL_DATA_REG_32BIT,	MEMORY_SIZE_16BIT,	MEMORY_INCREMENT_ENABLE,	PERIPHERAL_INCREMENT_DISABLE,	CIRCULAR_MODE_ENABLE,	HIGH_PRIORITY,},
 };
 
