@@ -17,19 +17,19 @@
 // ******************************  GPIO Configuration - START *************************************************************
 
 /// The gpio pins needed to be configured for this project
-const GPIO_PinConfig_t gpio_pin_config[] = {
-
-		/// Generic GPIO Pins used in this project
-		{	gpioa_ptr,	PIN0,	PIN_ANALOG_INPUT,	PORTA	,AF_INVALID},
-		{	gpioa_ptr,	PIN1,	PIN_ANALOG_INPUT,	PORTA	,AF_INVALID},
-		{	gpiob_ptr,	PIN1,	PIN_ANALOG_INPUT,	PORTB	,AF_INVALID},
-
-		// GPIO Pin configurations for UART2
-		{	gpioa_ptr , PIN2 , PIN_ALTERNATE_FUNCTION , PORTA, AF7},
-		{	gpioa_ptr , PIN3 , PIN_ALTERNATE_FUNCTION , PORTA, AF7},
-};
-
-const uint8_t gpio_pin_config_size = sizeof(gpio_pin_config)/sizeof(gpio_pin_config[0]);
+//const GPIO_PinConfig_t gpio_pin_config[] = {
+//
+//		/// Generic GPIO Pins used in this project
+//		{	gpioa_ptr,	PIN0,	PIN_ANALOG_INPUT,	PORTA	,AF_INVALID},
+//		{	gpioa_ptr,	PIN1,	PIN_ANALOG_INPUT,	PORTA	,AF_INVALID},
+//		{	gpiob_ptr,	PIN1,	PIN_ANALOG_INPUT,	PORTB	,AF_INVALID},
+//
+//		// GPIO Pin configurations for UART2
+//		{	gpioa_ptr , PIN2 , PIN_ALTERNATE_FUNCTION , PORTA, AF7},
+//		{	gpioa_ptr , PIN3 , PIN_ALTERNATE_FUNCTION , PORTA, AF7},
+//};
+//
+//const uint8_t gpio_pin_config_size = sizeof(gpio_pin_config)/sizeof(gpio_pin_config[0]);
 
 // ******************************  GPIO Configuration - END   *************************************************************
 
@@ -38,17 +38,17 @@ const uint8_t gpio_pin_config_size = sizeof(gpio_pin_config)/sizeof(gpio_pin_con
 
 // ******************************  UART Configuration - START *************************************************************
 
-const UART_Module_Config uart_config[] = {
-		{
-				usart2_ptr,				/// Module pointer UART - Pointer for uart module used
-				USART_MODULE2,			/// Module number UART - Module number for uart module
-				9600,					/// Uart_baud rate
-				0,						/// Uart Oversampling
-				16000000				/// Clock
-		}
-};
-
-const uint8_t uart_config_size = sizeof(uart_config)/sizeof(uart_config[0]);
+//const UART_Module_Config uart_config[] = {
+//		{
+//				usart2_ptr,				/// Module pointer UART - Pointer for uart module used
+//				USART_MODULE2,			/// Module number UART - Module number for uart module
+//				9600,					/// Uart_baud rate
+//				0,						/// Uart Oversampling
+//				16000000				/// Clock
+//		}
+//};
+//
+//const uint8_t uart_config_size = sizeof(uart_config)/sizeof(uart_config[0]);
 
 
 // ******************************  UART Configuration - END *************************************************************
@@ -58,11 +58,11 @@ const uint8_t uart_config_size = sizeof(uart_config)/sizeof(uart_config[0]);
 
 // ****************************** WATCHDOG Configuration - START ********************************************************
 
-const Watchdog_Module_Config watchdog_config = {
-		iwdg_ptr,				/// Module Poniter
-		6,						/// Prescalar
-		10					    /// Watchdog set time
-};
+//const Watchdog_Module_Config watchdog_config = {
+//		iwdg_ptr,				/// Module Poniter
+//		6,						/// Prescalar
+//		10					    /// Watchdog set time
+//};
 
 // ****************************** WATCHDOG Configuration - END **********************************************************
 
@@ -70,7 +70,7 @@ const Watchdog_Module_Config watchdog_config = {
 
 // ******************************  I2C Configuration - START *************************************************************
 
-// Init configurations for I2C Module - Fixed
+// Init configurations for I2C Module - Fixed - Configuration of I2C1
 const i2c_module_configuration i2c_config[] = {
 		{
 				I2C_1,						// Module number - Module number of I2C Module configured in the project
@@ -86,6 +86,7 @@ const i2c_module_configuration i2c_config[] = {
 				EVENT_INTERRUPT_ENABLE,		// Event interrupt is enabeld - We need to check events in ISR to write the next operations
 				DMA_ENABLE,					// Enabled the DMA ( Make sure DMA is configured before enabling it )
 				I2C_ENABLE,					// Enabled I2C . Last step , the peripheral will be working now
+				&dma_stream_config[0],		// DMA_Stream_Config - Pointer to the configuration for DMA stream of I2CRX
 		},
 };
 
@@ -97,53 +98,55 @@ const uint8_t i2c_config_size = sizeof (i2c_config) / sizeof(i2c_config[0]);
 
 
 
-/// ADC Buffer initialisation
-volatile uint32_t adc_measurement[3] = {0u};
-
-
-// ***********************************************************************************************
-/// The adc channels needed to be configured for this project
-const ADC_Channel_config_t adc1_channel_config[] =
-{
-		{CHANNEL_1	, SAMPLES_480},
-		{CHANNEL_3	, SAMPLES_480},
-};
-const ADC_Channel_config_t adc2_channel_config[] =
-{
-		{CHANNEL_9	, SAMPLES_480},
-};
-
-const uint8_t adc1_channel_count = sizeof(adc1_channel_config)/sizeof(adc1_channel_config[0]);
-const uint8_t adc2_channel_count = sizeof(adc2_channel_config)/sizeof(adc2_channel_config[0]);
-
-/// The ADC Modules needed to be configured for this project
-const ADC_Module_config_t adc_module_config[] = {
-		{	ADC1,	adc1_ptr,	ADC_RIGHT_ALIGN,	adc1_channel_config,	adc1_channel_count,	SCAN_MODE_ENABLED,	CONITNUOUS_MODE_ENABLED,	ADC_ENABLED,	EOC_AFTER_EACH_CONVERSION,	DMA_ENABLE,	},
-		{	ADC2,	adc2_ptr,	ADC_RIGHT_ALIGN,	adc2_channel_config,	adc2_channel_count,	SCAN_MODE_DISABLED,	CONITNUOUS_MODE_DISABLED,	ADC_ENABLED,	EOC_AFTER_EACH_CONVERSION,	DMA_ENABLE,	},
-};
-
-const uint8_t adc_module_config_size = sizeof(adc_module_config)/sizeof(adc_module_config[0]);
+///// ADC Buffer initialisation
+//volatile uint32_t adc_measurement[3] = {0u};
+//
+//
+//// ***********************************************************************************************
+///// The adc channels needed to be configured for this project
+//const ADC_Channel_config_t adc1_channel_config[] =
+//{
+//		{CHANNEL_1	, SAMPLES_480},
+//		{CHANNEL_3	, SAMPLES_480},
+//};
+//const ADC_Channel_config_t adc2_channel_config[] =
+//{
+//		{CHANNEL_9	, SAMPLES_480},
+//};
+//
+//const uint8_t adc1_channel_count = sizeof(adc1_channel_config)/sizeof(adc1_channel_config[0]);
+//const uint8_t adc2_channel_count = sizeof(adc2_channel_config)/sizeof(adc2_channel_config[0]);
+//
+///// The ADC Modules needed to be configured for this project
+//const ADC_Module_config_t adc_module_config[] = {
+//		{	ADC1,	adc1_ptr,	ADC_RIGHT_ALIGN,	adc1_channel_config,	adc1_channel_count,	SCAN_MODE_ENABLED,	CONITNUOUS_MODE_ENABLED,	ADC_ENABLED,	EOC_AFTER_EACH_CONVERSION,	DMA_ENABLE,	},
+//		{	ADC2,	adc2_ptr,	ADC_RIGHT_ALIGN,	adc2_channel_config,	adc2_channel_count,	SCAN_MODE_DISABLED,	CONITNUOUS_MODE_DISABLED,	ADC_ENABLED,	EOC_AFTER_EACH_CONVERSION,	DMA_ENABLE,	},
+//};
+//
+//const uint8_t adc_module_config_size = sizeof(adc_module_config)/sizeof(adc_module_config[0]);
 
 // *******************************************************************************************
 /// The dma streams to be configured for this project
-const DMA_Stream_Config dma_stream_config[] = {
+const DMA_Stream_Config dma_stream_config[] =
+{
+		/// Configuration for the DMA1 - stream 0 - channel 1 for 12c1 RX
 		{
-				DMA2,
-				dma2_ptr ,
-				STREAM0,
-				DMA2_STREAM0_ADC1,
-				PERIPHERAL_TO_MEMORY,
-				&(adc1_ptr->DR),
-				&adc_measurement[0],
-				adc1_channel_count,
-				PERIPHERAL_DATA_REG_32BIT,
-				MEMORY_SIZE_16BIT,
-				MEMORY_INCREMENT_ENABLE,
-				PERIPHERAL_INCREMENT_DISABLE,
-				CIRCULAR_MODE_ENABLE,
-				HIGH_PRIORITY,
+				DMA1,											// module_number - Needed to do the clock init for specific module
+				dma1_ptr,										// module_pointer - Pointer to the full register strucutre , Needed for accessing each modules
+				STREAM0,										// dma_stream - Configured stream
+				DMA1_STREAM0_IC21RX,							// channel_request - Application can request the channel needed , DMA will fetch the suitable channel based on the lookup table
+				PERIPHERAL_TO_MEMORY,							// Direction - Peripheral to memory here since we need to copy the contents from I2C Dr to memory
+				&(i2c1_ptr->DR),								// Peripheral address - The register address from where DMA need to copy the data
+				&mpu_6050_data[0],								// memory_address - The data will be copied to here
+				6,												// transfer_count - NDTR . Number of bytes to be transferred
+				PERIPHERAL_DATA_REG_8BIT,						// psize - Peripheral data size ( Need to read 8bits from DR at a time)
+				MEMORY_SIZE_8BIT,								// msize - Need to copy 8 bits to the memory at a time
+				MEMORY_INCREMENT_ENABLE,						// memory_increment_mode - Enabled - Need to copy the data in all index
+				PERIPHERAL_INCREMENT_DISABLE,					// peripheral_increment_mode - Disabled - We are taking everything from DR ( Common address )
+				CIRCULAR_MODE_DISABLE,							// circular_mode - Disabled - No need of circular mode , DMA need to stop after completing the transfer .. we are stoping the i2c as well
+				HIGH_PRIORITY,									// priority - Priority is given as high priority
+				i2c_dma_complete,								// callback_ptr - Function which need to be called after completing i2c dma event
 		},
-		{	DMA2,	dma2_ptr ,	STREAM3,	DMA2_STREAM3_ADC2,	PERIPHERAL_TO_MEMORY,	&(adc2_ptr->DR),	&adc_measurement[2],	adc2_channel_count,	PERIPHERAL_DATA_REG_32BIT,	MEMORY_SIZE_16BIT,	MEMORY_INCREMENT_ENABLE,	PERIPHERAL_INCREMENT_DISABLE,	CIRCULAR_MODE_ENABLE,	HIGH_PRIORITY,},
 };
 
 const uint8_t dma_stream_count = sizeof (dma_stream_config) / sizeof(dma_stream_config[0]);

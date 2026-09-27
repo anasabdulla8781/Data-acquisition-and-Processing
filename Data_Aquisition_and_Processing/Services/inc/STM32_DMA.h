@@ -33,7 +33,7 @@ typedef struct DMA_structure
 
 typedef struct DMA_Combinations
 {
-	uint8_t request;
+	uint8_t channel_request;
 	uint8_t channel;
 }DMA_Combinations;
 
@@ -42,7 +42,8 @@ typedef enum dma_stream_combinations
 	DMA2_STREAM0_ADC1,
 	DMA2_STREAM4_ADC1,
 	DMA2_STREAM0_SPIRX,
-	DMA2_STREAM3_ADC2
+	DMA2_STREAM3_ADC2,
+	DMA1_STREAM0_IC21RX
 
 }dma_stream_combinations;
 
@@ -50,9 +51,9 @@ typedef enum dma_stream_combinations
 typedef struct dma_stream_config
 {
 	uint8_t module_number;
-	DMA_structure* dma_module;
+	DMA_structure* module_pointer;
 	uint8_t dma_stream;
-	dma_stream_combinations request;
+	dma_stream_combinations channel_request;
 	uint8_t direction;
 	volatile uint32_t* peripheral_address;
 	volatile uint32_t* memory_address;
@@ -63,6 +64,7 @@ typedef struct dma_stream_config
 	uint8_t peripheral_increment_mode;
 	uint8_t circular_mode;
 	uint8_t priority;
+	void (*callback_ptr)(uint8_t);
 }DMA_Stream_Config;
 
 #define CHANNEL0	0
@@ -86,6 +88,7 @@ typedef struct dma_stream_config
 #define NUMBER_OF_DATA_REGISTER_2	2
 
 /// Macros for Peripheral size
+#define PERIPHERAL_DATA_REG_8BIT 0
 #define PERIPHERAL_DATA_REG_32BIT 2
 
 /// Macros for MEMORY Variable size

@@ -225,6 +225,11 @@ uint8_t i2c_get_driver_info(i2c_transaction transaction_structure , i2c_driver**
 }
 
 
+void i2c_dma_complete (uint8_t module)																			// Callback function which need to be called once the i2c dma event is completed
+{
+	i2c_stop(module);
+}
+
 void i2c_eventhandler (uint8_t module)
 {
 	if (module < configured_i2c_devices)

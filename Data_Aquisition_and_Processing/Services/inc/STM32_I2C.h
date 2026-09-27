@@ -11,6 +11,7 @@
 
 #include <stdint.h>
 #include "STM32_RCC.h"
+#include "STM32_DMA.h"
 
 /// I2C Memory map strucutre
 
@@ -45,6 +46,7 @@ typedef struct
 	uint8_t event_interrupt_enable_disable;
 	uint8_t dma_enable_disable;
 	uint8_t i2c_enable_disable;
+	DMA_Stream_Config* dma_config;
 }i2c_module_configuration;
 
 /// Structure for the transactions  ( Application layer has to use to share the slave and register info to the driver ) - Differant structures for each sensors
