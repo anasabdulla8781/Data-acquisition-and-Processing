@@ -198,12 +198,13 @@ void i2c_start(i2c_transaction transaction_structure)
 
 	if (i2c_get_driver_info(transaction_structure, &driver_info) == E_OK)											//	Get the driver corresponding to the transaction mentioned
 	{
-		if (driver_info->driver_status == I2C_DRIVER_IDLE)
+		if ((driver_info->driver_status == I2C_DRIVER_IDLE) && (driver_info->bus_state == I2C_BUS_IDLE))
 		{
 			i2c_structure*module_ptr = driver_info->module_pointer;
 			driver_info->active_transaction = transaction_structure;												// The driver is ready to take the transaction , so copied the contents to the driver structure
 			driver_info->driver_status = I2C_DRIVER_BUSY;															// Set the driver to busy to avoid further transactions ( if  another start request comes for the same bus )
 			module_ptr->CR1 |= (1<<8);																				// Set the start bit for the module we wanted to communicate . This will clear automatically by HW after setting the start condition
+			driver_info->bus_state = I2C_BUS_START;
 		}
 	}
 
@@ -222,3 +223,96 @@ uint8_t i2c_get_driver_info(i2c_transaction transaction_structure , i2c_driver**
 	}
 	return E_NOT_OK;
 }
+
+
+void i2c_eventhandler (uint8_t module)
+{
+	if (module < configured_i2c_devices)
+	{
+		i2c_driver *configured_driver = &i2c_drivers_configured[module];
+
+		// Event handlings
+
+		// Handling the SB Event
+		if (configured_driver->module_pointer->SR1 & (1 << 0x00))													/// Interrupt triggered through start bit event
+		{
+			switch(configured_driver->bus_state)
+			{
+			case I2C_BUS_START:
+				i2c_write_address(configured_driver->active_transaction , I2C_WRITE);								/// Write the address in write mode and set the bus state to ADDR mode
+				configured_driver->bus_state = I2C_BUS_ADDRESS_WRITE;
+				break;
+			case I2C_BUS_RESTART:
+				i2c_write_address(configured_driver->active_transaction , I2C_READ);								/// Now entering in read mode from the register
+				configured_driver->bus_state = I2C_BUS_ADDRESS_READ;
+				break;
+			default:
+				break;
+			}
+		}
+		// Handling the ADDR Event
+		else if (configured_driver->module_pointer->SR1 & (1 << 0x01))
+		{
+			volatile uint32_t status_Reg;
+			status_Reg = configured_driver->module_pointer->SR1;													// Reading SR1 and 2 for clearing the status
+			status_Reg = configured_driver->module_pointer->SR2;
+			switch(configured_driver->bus_state)
+			{
+			case I2C_BUS_ADDRESS_WRITE:
+				i2c_write(configured_driver->active_transaction.start_register_address);							// Initial address writing was success , so adding register address and we can restart from here
+				configured_driver->bus_state = I2C_BUS_REGISTER;
+				break;
+			case I2C_BUS_ADDRESS_READ:
+				i2c_read(configured_driver->active_transaction);													// Reading from the registers
+				configured_driver->bus_state = I2C_BUS_RECEIVE_DATA;
+				break;
+			default :
+				break;
+			}
+		}
+		// Handling the BTF event
+		else if (configured_driver->module_pointer->SR1 & (1 << 0x02))
+		{
+			switch(configured_driver->bus_state)
+			{
+			case I2C_BUS_REGISTER:
+				if (configured_driver->active_transaction.direction == I2C_READ)
+				{
+					configured_driver->module_pointer->CR1 |= (1<<8);												// Repeated start
+					configured_driver->bus_state = I2C_BUS_RESTART;
+				}
+				else
+				{
+					i2c_write(configured_driver->active_transaction);
+					configured_driver->bus_state = I2C_BUS_SEND_DATA;
+				}
+				break;
+			case I2C_BUS_RECEIVE_DATA:
+				if (configured_driver->active_transaction.data_length > configured_driver->active_transaction.send_bytes)
+				{
+					i2c_read(configured_driver->active_transaction);
+					configured_driver->active_transaction.send_bytes++;
+				}
+				else
+				{
+					i2c_stop(configured_driver);
+					configured_driver->bus_state = I2C_BUS_STOP;
+				}
+				break;
+			default :
+				break;
+			}
+		}
+		else if (configured_driver->module_pointer->SR1 & (1 << 0x04))												// Handling stop events
+		{
+			switch(configured_driver->bus_state)
+			{
+			case I2C_BUS_STOP:
+				configured_driver->bus_state = I2C_BUS_IDLE;
+				configured_driver->driver_status = I2C_DRIVER_IDLE;
+			}
+		}
+
+	}
+}
+

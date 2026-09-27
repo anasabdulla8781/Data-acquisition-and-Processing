@@ -7,13 +7,6 @@
 
 
 #include <STM32_NVIC.h>
-#include <STM32_GPT.h>
-#include <STM32_GPIO.h>
-#include <APP_feature.h>
-#include <STM32_EXTI.h>
-#include "APP_task.h"
-#include "STM32_UART.h"
-
 
 uint32_t tim2_interrupt_count;
 uint8_t eight_s_delay;
@@ -68,28 +61,35 @@ void nvic_init(uint8_t interrupt_number)
 	}
 }
 
-void TIM2_IRQHandler(void)
+
+void I2C1_EV_IRQHandler(void)
 {
-	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-	if (gpt2_ptr->TIMx_SR & 1U) 			/// Last bit in the SR is 1 indicating there is an interrupt happened
-	{
-		/// Cleared the interrupt
-		gpt2_ptr->TIMx_SR &= ~(1U << 0);
-//		///Counted the interrupt
-//		tim2_interrupt_count++;
-//		/// Connect to the task1ms .. and share the counter to print
-//
-//		if (task1Handle != NULL)
-//		{
-//			xTaskNotifyFromISR(task1Handle,tim2_interrupt_count,eSetValueWithOverwrite,&xHigherPriorityTaskWoken);
-//			// Perform context switching if needed
-//			portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-//		}
-
-
-
-	}
+	i2c_eventhandler(I2C_1);
 }
+
+
+//void TIM2_IRQHandler(void)
+//{
+//	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+//	if (gpt2_ptr->TIMx_SR & 1U) 			/// Last bit in the SR is 1 indicating there is an interrupt happened
+//	{
+//		/// Cleared the interrupt
+//		gpt2_ptr->TIMx_SR &= ~(1U << 0);
+////		///Counted the interrupt
+////		tim2_interrupt_count++;
+////		/// Connect to the task1ms .. and share the counter to print
+////
+////		if (task1Handle != NULL)
+////		{
+////			xTaskNotifyFromISR(task1Handle,tim2_interrupt_count,eSetValueWithOverwrite,&xHigherPriorityTaskWoken);
+////			// Perform context switching if needed
+////			portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+////		}
+//
+//
+//
+//	}
+//}
 
 void TIM4_IRQHandler(void)
 {
@@ -101,30 +101,30 @@ void TIM4_IRQHandler(void)
 	}
 }
 
-void EXTI0_IRQHandler(void)
-{
-	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-	measurement isr_measure;
-	if (exti_ptr->PR & (1<<0))
-	{
-		/// Cleared the interrupt happened
-		exti_ptr->PR |= (1<<0);
-
-		/// Disable EXTI0 temporarily
-		exti_ptr->IMR &= ~(1<<0);
-
-		/// Give notification to the tasks
-		vTaskNotifyGiveFromISR(buttontaskHandle,&xHigherPriorityTaskWoken);
-
-		/// Debounce delay
-		for(volatile uint32_t i=0; i<20000; i++);
+//void EXTI0_IRQHandler(void)
+//{
+//	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+//	measurement isr_measure;
+//	if (exti_ptr->PR & (1<<0))
+//	{
+//		/// Cleared the interrupt happened
+//		exti_ptr->PR |= (1<<0);
 //
-		/// Enable EXTI0 again
-		exti_ptr->IMR |= (1<<0);
-		// Perform context switching if needed
-		portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-	}
-}
+//		/// Disable EXTI0 temporarily
+//		exti_ptr->IMR &= ~(1<<0);
+//
+//		/// Give notification to the tasks
+//		vTaskNotifyGiveFromISR(buttontaskHandle,&xHigherPriorityTaskWoken);
+//
+//		/// Debounce delay
+//		for(volatile uint32_t i=0; i<20000; i++);
+////
+//		/// Enable EXTI0 again
+//		exti_ptr->IMR |= (1<<0);
+//		// Perform context switching if needed
+//		portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+//	}
+//}
 
 
 void USART2_IRQHandler(void)

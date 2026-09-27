@@ -56,6 +56,7 @@ typedef struct
 	uint8_t start_register_address;
 	uint8_t direction;
 	uint8_t data_length;
+	uint8_t send_bytes;
 	uint8_t* result_array;
 }i2c_transaction;
 
@@ -122,13 +123,24 @@ typedef struct
 #define E_OK		1
 
 // Bus status - What exactly the status of the bus now
-#define I2C_BUS_IDLE	0
-#define I2C_BUS_BUSY	1
+
+#define I2C_BUS_IDLE			0
+#define I2C_BUS_START			1
+#define I2C_BUS_ADDRESS_WRITE	2
+#define I2C_BUS_REGISTER		3
+#define I2C_BUS_RESTART			4
+#define I2C_BUS_ADDRESS_READ	5
+#define I2C_BUS_RECEIVE_DATA	6
+#define I2C_BUS_SEND_DATA		7
+#define I2C_BUS_STOP			8
 
 // Driver state - In what state the driver is currently
 #define I2C_DRIVER_IDLE	0
 #define I2C_DRIVER_BUSY	1
 
+// Read and write mode in I2C
+#define I2C_WRITE	0
+#define I2C_READ	1
 // Global variables declaration
 
 /// Function declarations

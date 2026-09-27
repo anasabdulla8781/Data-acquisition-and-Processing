@@ -82,7 +82,7 @@ const i2c_module_configuration i2c_config[] = {
 				CLOCK_STRECH_ENABLE,		// Clock streching is enabled
 				ERROR_INTERRUPT_ENABLE,		// Enabled the interrupts logging on errors
 				16,							// Peripheral clock frequency - 16 Mhz frequency
-				BUFFER_INTERRUPT_DISABLE,	// Buffer interrupt is disabled - We dont need that since we are using DMA
+				BUFFER_INTERRUPT_ENABLE,	// Buffer interrupt is disabled - We dont need that since we are using DMA
 				EVENT_INTERRUPT_ENABLE,		// Event interrupt is enabeld - We need to check events in ISR to write the next operations
 				DMA_ENABLE,					// Enabled the DMA ( Make sure DMA is configured before enabling it )
 				I2C_ENABLE,					// Enabled I2C . Last step , the peripheral will be working now
