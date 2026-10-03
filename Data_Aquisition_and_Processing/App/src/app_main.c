@@ -144,12 +144,7 @@ uint8_t test_reset = 0;
 
 void service_init()
 {
-	 FPU_Enable();
-	 nvic_init(38);
-	 independent_watchdog_init(watchdog_config);
-	 gpio_init(gpio_pin_config , gpio_pin_config_size);
-	 uart_init(uart_config , uart_config_size);
-	 reset_reason_check(&reset_reason , reset_reason_string);
+	 i2c_init(i2c_config,i2c_config_size);
 }
 
 void app_init()

@@ -11,6 +11,7 @@
 
 #include <stdint.h>
 #include "STM32_RCC.h"
+#include "STM32_DMA.h"
 
 /// I2C Memory map strucutre
 
@@ -45,7 +46,9 @@ typedef struct
 	uint8_t event_interrupt_enable_disable;
 	uint8_t dma_enable_disable;
 	uint8_t i2c_enable_disable;
-}i2c_module_configuration;
+	const DMA_Stream_Config* dma_config;
+	uint8_t set_last_enable_disable;
+}I2C_Config;
 
 /// Structure for the transactions  ( Application layer has to use to share the slave and register info to the driver ) - Differant structures for each sensors
 
@@ -56,19 +59,18 @@ typedef struct
 	uint8_t start_register_address;
 	uint8_t direction;
 	uint8_t data_length;
-	uint8_t send_bytes;
 	uint8_t* result_array;
-}i2c_transaction;
+}I2C_Transaction;
 
 
 /// Structure hold by I2C for transaction control ( Each driver will have seperate onces , we will arrange in common array )
 typedef struct
 {
-	i2c_transaction active_transaction;
+	I2C_Transaction active_transaction;
 	i2c_structure* module_pointer;
 	uint8_t bus_state;
 	uint8_t driver_status;
-}i2c_driver;
+}I2C_Runtime;
 
 
 #define I2C1_BASEADDRESS	0x40005400
@@ -122,16 +124,20 @@ typedef struct
 #define E_NOT_OK	0
 #define E_OK		1
 
+// Last transfer enabled / Disabled
+#define LAST_TRANSFER_DISABLED	0
+#define LAST_TRANSFER_ENABLED	1
+
 // Bus status - What exactly the status of the bus now
 
 #define I2C_BUS_IDLE			0
 #define I2C_BUS_START			1
 #define I2C_BUS_ADDRESS_WRITE	2
 #define I2C_BUS_REGISTER		3
-#define I2C_BUS_RESTART			4
+#define I2C_BUS_REPEATED_START	4
 #define I2C_BUS_ADDRESS_READ	5
-#define I2C_BUS_RECEIVE_DATA	6
-#define I2C_BUS_SEND_DATA		7
+#define I2C_BUS_DATA_READ		6
+#define I2C_BUS_DATA_SEND		7
 #define I2C_BUS_STOP			8
 
 // Driver state - In what state the driver is currently
@@ -144,23 +150,23 @@ typedef struct
 // Global variables declaration
 
 /// Function declarations
-extern void i2c_init (const i2c_module_configuration* config , uint8_t i2c_module_count);
+extern void i2c_init (const I2C_Config* config , uint8_t i2c_module_count);
 extern void i2c_reset_peripheral (i2c_structure* module_pointer);
-extern void i2c_set_mode (const i2c_module_configuration* config);
-extern void i2c_set_clock_control_register (const i2c_module_configuration* config);
-extern void i2c_set_risetime (const i2c_module_configuration* config);
-extern void i2c_set_acknoledgement (const i2c_module_configuration* config);
-extern void i2c_set_clockstrech (const i2c_module_configuration* config);
-extern void i2c_set_error_interrupt_enable (const i2c_module_configuration* config);
-extern void i2c_set_frequency(const i2c_module_configuration* config);
-extern void i2c_set_buffer_interrupt_enable(const i2c_module_configuration* config);
-extern void i2c_set_event_interrupt_enable(const i2c_module_configuration* config);
-extern void i2c_dma_enable(const i2c_module_configuration* config);
-extern void i2c_enable(const i2c_module_configuration* config);
+extern void i2c_set_mode (const I2C_Config* config);
+extern void i2c_set_clock_control_register (const I2C_Config* config);
+extern void i2c_set_risetime (const I2C_Config* config);
+extern void i2c_set_acknoledgement (const I2C_Config* config);
+extern void i2c_set_clockstrech (const I2C_Config* config);
+extern void i2c_set_error_interrupt_enable (const I2C_Config* config);
+extern void i2c_set_frequency(const I2C_Config* config);
+extern void i2c_set_buffer_interrupt_enable(const I2C_Config* config);
+extern void i2c_set_event_interrupt_enable(const I2C_Config* config);
+extern void i2c_dma_enable(const I2C_Config* config);
+extern void i2c_enable(const I2C_Config* config);
 
 
-extern void i2c_start(i2c_transaction transaction_structure);
-extern uint8_t i2c_get_driver_info(i2c_transaction transaction_structure , i2c_driver** driver_info);
+extern void i2c_start(I2C_Transaction transaction_structure);
+extern uint8_t i2c_get_driver_info(I2C_Transaction transaction_structure , I2C_Runtime** driver_info);
 
 
 #endif /* INC_STM32_I2C_H_ */
