@@ -70,6 +70,7 @@ typedef struct
 	i2c_structure* module_pointer;
 	uint8_t bus_state;
 	uint8_t driver_status;
+    const DMA_Stream_Config *dma_config;
 }I2C_Runtime;
 
 
@@ -87,6 +88,9 @@ typedef struct
 #define I2C_1	0
 #define I2C_2	1
 #define I2C_3	2
+
+// Macro to declare the runtime array
+#define I2C_MAX_CONFIGURATION	3
 
 /// Differant speed modes
 #define STANDARD_MODE	0
@@ -161,12 +165,13 @@ extern void i2c_set_error_interrupt_enable (const I2C_Config* config);
 extern void i2c_set_frequency(const I2C_Config* config);
 extern void i2c_set_buffer_interrupt_enable(const I2C_Config* config);
 extern void i2c_set_event_interrupt_enable(const I2C_Config* config);
-extern void i2c_dma_enable(const I2C_Config* config);
+extern void i2c_dma_enable(i2c_structure* module_pointer);
 extern void i2c_enable(const I2C_Config* config);
+extern void i2c_dma_complete (void *context);
 
 
 extern void i2c_start(I2C_Transaction transaction_structure);
-extern uint8_t i2c_get_driver_info(I2C_Transaction transaction_structure , I2C_Runtime** driver_info);
+extern uint8_t i2c_get_driver_runtime(I2C_Transaction transaction_structure , I2C_Runtime** i2c_runtime);
 
 
 #endif /* INC_STM32_I2C_H_ */

@@ -128,6 +128,7 @@ const uint8_t i2c_config_size = sizeof (i2c_config) / sizeof(i2c_config[0]);
 
 // *******************************************************************************************
 /// The dma streams to be configured for this project
+uint8_t mpu_6050_data[6];
 const DMA_Stream_Config dma_stream_config[] =
 {
 		/// Configuration for the DMA1 - stream 0 - channel 1 for 12c1 RX
@@ -138,7 +139,7 @@ const DMA_Stream_Config dma_stream_config[] =
 				DMA1_STREAM0_IC21RX,							// channel_request - Application can request the channel needed , DMA will fetch the suitable channel based on the lookup table
 				PERIPHERAL_TO_MEMORY,							// Direction - Peripheral to memory here since we need to copy the contents from I2C Dr to memory
 				&(i2c1_ptr->DR),								// Peripheral address - The register address from where DMA need to copy the data
-				&mpu_6050_data[0],								// memory_address - The data will be copied to here
+				&(mpu_6050_data[0]),							// memory_address - The data will be copied to here
 				6,												// transfer_count - NDTR . Number of bytes to be transferred
 				PERIPHERAL_DATA_REG_8BIT,						// psize - Peripheral data size ( Need to read 8bits from DR at a time)
 				MEMORY_SIZE_8BIT,								// msize - Need to copy 8 bits to the memory at a time
@@ -147,7 +148,6 @@ const DMA_Stream_Config dma_stream_config[] =
 				CIRCULAR_MODE_DISABLE,							// circular_mode - Disabled - No need of circular mode , DMA need to stop after completing the transfer .. we are stoping the i2c as well
 				HIGH_PRIORITY,									// priority - Priority is given as high priority
 				i2c_dma_complete,								// callback_ptr - Function which need to be called after completing i2c dma event
-				&i2c_drivers_configured[0]						// Context - The callback need to get called with context
 		},
 };
 

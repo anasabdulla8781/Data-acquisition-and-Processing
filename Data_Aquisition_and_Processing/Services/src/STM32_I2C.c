@@ -36,6 +36,11 @@
 // DMA Configurations - Will do it later
 
 
+// Run time configurations of the I2C Module - Not fixed . This will get updated based on the application request
+
+I2C_Runtime i2c_runtime_config[I2C_MAX_CONFIGURATION];
+
+
 /// **************************************** Module configurations - Start ************************************************
 
 
@@ -56,6 +61,7 @@ void i2c_init (const I2C_Config* config , const uint8_t i2c_module_count)
 		i2c_set_buffer_interrupt_enable(&config[iter]);
 		i2c_set_lastmode(&config[iter]);
 		i2c_enable(&config[iter]);
+		i2c_copy_contents(&config[iter]);
 	}
 }
 
@@ -180,25 +186,21 @@ void i2c_reset_peripheral (i2c_structure* module_pointer)
 	}
 }
 
+void i2c_copy_contents (const I2C_Config* config)
+{
+	uint8_t module = config->module_number;
+	i2c_structure* module_pointer = config->module_pointer;
+
+	i2c_runtime_config[module].bus_state = I2C_BUS_IDLE;
+	i2c_runtime_config[module].dma_config = config->dma_config;
+	i2c_runtime_config[module].driver_status = I2C_DRIVER_IDLE;
+	i2c_runtime_config[module].module_pointer = module;
+}
+
 /// **************************************** Module configurations - End ************************************************
 
 
 /// **************************************** Module Functionalities - Start ************************************************
-
-
-// Run time configurations of the I2C Module - Not fixed . This will get updated based on the application request
-
-I2C_Runtime i2c_drivers_configured[] = {
-		{
-				.module_pointer = i2c1_ptr,
-				.bus_state = I2C_BUS_IDLE,
-				.driver_status = I2C_DRIVER_IDLE,
-		},
-};
-
-static const uint8_t configured_i2c_devices = sizeof(i2c_drivers_configured)/sizeof(i2c_drivers_configured[0]);
-
-
 
 void i2c_start(I2C_Transaction transaction_structure)
 {
@@ -221,11 +223,11 @@ void i2c_start(I2C_Transaction transaction_structure)
 
 uint8_t i2c_get_driver_runtime(I2C_Transaction transaction_structure , I2C_Runtime** i2c_runtime)
 {
-	for (uint8_t iter = 0 ; iter<configured_i2c_devices; iter++)
+	for (uint8_t iter = 0 ; iter<I2C_MAX_CONFIGURATION; iter++)
 	{
-		if (transaction_structure.module_pointer == i2c_drivers_configured[iter].module_pointer)
+		if (transaction_structure.module_pointer == i2c_runtime_config[iter].module_pointer)
 		{
-			*i2c_runtime = &i2c_drivers_configured[iter];
+			*i2c_runtime = &i2c_runtime_config[iter];
 			return E_OK;
 		}
 	}
@@ -250,11 +252,11 @@ void i2c_stop (I2C_Runtime* i2c_runtime)
 
 const DMA_Stream_Config* i2c_get_dma_details(i2c_structure* ptr)
 {
-	for ( uint8_t iter = 0 ; iter <  configured_i2c_devices ; iter++)
+	for ( uint8_t iter = 0 ; iter <  I2C_MAX_CONFIGURATION ; iter++)
 	{
-		if ( i2c_config[iter].module_pointer == ptr )
+		if (i2c_runtime_config[iter].module_pointer == ptr )
 		{
-			return (i2c_config[iter].dma_config);
+			return (i2c_runtime_config[iter].dma_config);
 		}
 	}
 	return NULL;
@@ -278,10 +280,10 @@ const DMA_Stream_Config* i2c_get_dma_details(i2c_structure* ptr)
 
 void i2c_eventhandler (uint8_t module)
 {
-	if (module < configured_i2c_devices)
+	if (module < I2C_MAX_CONFIGURATION)
 	{
 		// Fetch the Runtime configuration of the driver
-		I2C_Runtime *i2c_runtime = &i2c_drivers_configured[module];
+		I2C_Runtime *i2c_runtime = &i2c_runtime_config[module];
 		const DMA_Stream_Config *dma_stream = NULL;
 		// Event handlings
 
