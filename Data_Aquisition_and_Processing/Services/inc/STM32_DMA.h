@@ -35,7 +35,7 @@ typedef struct DMA_Combinations
 {
 	uint8_t channel_request;
 	uint8_t channel;
-}DMA_Combinations;
+}DMA_Request_Config;
 
 typedef enum dma_stream_combinations
 {
@@ -65,6 +65,7 @@ typedef struct dma_stream_config
 	uint8_t circular_mode;
 	uint8_t priority;
 	void (*callback_ptr)(uint8_t);
+	void* context;
 }DMA_Stream_Config;
 
 #define CHANNEL0	0

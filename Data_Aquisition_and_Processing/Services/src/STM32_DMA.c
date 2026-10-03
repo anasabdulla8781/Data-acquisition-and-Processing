@@ -12,15 +12,19 @@
 // STM32F407 VECTOR TABLE
 
 
-const DMA_Combinations DMA_RequestChannelMap[] =
+/****************************************************** DMA LOOKUP TABLE - START  ********************************************/
+
+const DMA_Request_Config DMA_RequestChannelMap[] =
 {
-		{DMA2_STREAM0_ADC1	,	CHANNEL0},
-		{DMA2_STREAM4_ADC1	,	CHANNEL0},
-		{DMA2_STREAM0_SPIRX	,	CHANNEL3},
-		{DMA2_STREAM3_ADC2	,	CHANNEL1},
-		{DMA1_STREAM0_IC21RX,	CHANNEL1},
+		{DMA2_STREAM0_ADC1	,	CHANNEL0	},
+		{DMA2_STREAM4_ADC1	,	CHANNEL0	},
+		{DMA2_STREAM0_SPIRX	,	CHANNEL3	},
+		{DMA2_STREAM3_ADC2	,	CHANNEL1	},
+		{DMA1_STREAM0_IC21RX,	CHANNEL1	},
 
 };
+
+/****************************************************** DMA LOOKUP TABLE - END   ********************************************/
 
 
 void dma_init(DMA_Stream_Config* config , uint8_t dma_stream_count)

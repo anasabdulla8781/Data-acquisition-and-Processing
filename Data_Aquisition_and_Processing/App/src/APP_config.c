@@ -71,7 +71,7 @@
 // ******************************  I2C Configuration - START *************************************************************
 
 // Init configurations for I2C Module - Fixed - Configuration of I2C1
-const i2c_module_configuration i2c_config[] = {
+const I2C_Config i2c_config[] = {
 		{
 				I2C_1,						// Module number - Module number of I2C Module configured in the project
 				i2c1_ptr,					// Module pointer - Pointer to the address of the register map
@@ -82,11 +82,12 @@ const i2c_module_configuration i2c_config[] = {
 				CLOCK_STRECH_ENABLE,		// Clock streching is enabled
 				ERROR_INTERRUPT_ENABLE,		// Enabled the interrupts logging on errors
 				16,							// Peripheral clock frequency - 16 Mhz frequency
-				BUFFER_INTERRUPT_ENABLE,	// Buffer interrupt is disabled - We dont need that since we are using DMA
+				BUFFER_INTERRUPT_DISABLE,	// Buffer interrupt is disabled - We dont need that since we are using DMA
 				EVENT_INTERRUPT_ENABLE,		// Event interrupt is enabeld - We need to check events in ISR to write the next operations
 				DMA_ENABLE,					// Enabled the DMA ( Make sure DMA is configured before enabling it )
 				I2C_ENABLE,					// Enabled I2C . Last step , the peripheral will be working now
 				&dma_stream_config[0],		// DMA_Stream_Config - Pointer to the configuration for DMA stream of I2CRX
+				LAST_TRANSFER_ENABLED,		// set_last_enable_disable - Enabled - Enabled / Disabled the last transfer mode in I2C
 		},
 };
 
@@ -146,6 +147,7 @@ const DMA_Stream_Config dma_stream_config[] =
 				CIRCULAR_MODE_DISABLE,							// circular_mode - Disabled - No need of circular mode , DMA need to stop after completing the transfer .. we are stoping the i2c as well
 				HIGH_PRIORITY,									// priority - Priority is given as high priority
 				i2c_dma_complete,								// callback_ptr - Function which need to be called after completing i2c dma event
+				&i2c_drivers_configured[0]						// Context - The callback need to get called with context
 		},
 };
 
