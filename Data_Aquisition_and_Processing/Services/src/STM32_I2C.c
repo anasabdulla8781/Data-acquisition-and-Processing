@@ -356,16 +356,6 @@ void i2c_eventhandler (uint8_t module)
 				break;
 			}
 		}
-//		else if (i2c_runtime->module_pointer->SR1 & (1 << 0x04))												// Handling stop events
-//		{
-//			switch(i2c_runtime->bus_state)
-//			{
-//			case I2C_BUS_STOP:
-//				i2c_runtime->bus_state = I2C_BUS_IDLE;
-//				i2c_runtime->driver_status = I2C_DRIVER_IDLE;
-//			}
-//		}
-
 	}
 }
 

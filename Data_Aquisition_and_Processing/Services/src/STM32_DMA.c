@@ -167,3 +167,24 @@ void dma_disable ( DMA_Stream_Config * config )
 
 	while ((module_pointer->STREAM[stream].CR) & (1u<<0));
 }
+
+
+
+void dma_set_runtime_ndtr(const DMA_Stream_Config *config, uint16_t count)
+{
+    config->module_pointer->STREAM[config->dma_stream].NDTR = count;
+}
+
+void dma_set_runtime_memory_address(const DMA_Stream_Config *config, uint8_t *address)
+{
+    config->module_pointer->STREAM[config->dma_stream].M0AR = (uint32_t)address;
+}
+
+
+void dma_set_runtime_direction(const DMA_Stream_Config *config, uint8_t direction)
+{
+    DMA_stream_structure *stream = &config->module_pointer->STREAM[config->dma_stream];
+
+    stream->CR &= ~(3U << 6);
+    stream->CR |= ((direction & 0x03U) << 6);
+}

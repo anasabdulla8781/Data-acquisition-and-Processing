@@ -128,5 +128,8 @@ void dma_set_circular_mode(DMA_Stream_Config* config);
 void dma_set_priority(DMA_Stream_Config* config);
 void dma_enable(DMA_Stream_Config* config);
 void dma_disable(DMA_Stream_Config* config);
+void dma_set_runtime_ndtr(const DMA_Stream_Config *config, uint16_t count);
+void dma_set_runtime_memory_address(const DMA_Stream_Config *config, uint8_t *address);
+void dma_set_runtime_direction(const DMA_Stream_Config *config, uint8_t direction);
 
 #endif /* INC_STM32_DMA_H_ */
