@@ -35,7 +35,7 @@ typedef struct
 {
 	uint8_t module_number;
 	i2c_structure* module_pointer;
-	uint8_t i2c_speed_mode;
+	uint8_t i2c_mode;
 	uint16_t ccr;
 	uint8_t max_rise_time;
 	uint8_t ack_enable_disable;
@@ -78,11 +78,10 @@ typedef struct
 #define I2C2_BASEADDRESS	0x40005800
 #define I2C3_BASEADDRESS	0x40005C00
 
+// Macros for Module pointer
 #define i2c1_ptr	((i2c_structure*)I2C1_BASEADDRESS)
 #define i2c2_ptr	((i2c_structure*)I2C2_BASEADDRESS)
 #define i2c3_ptr	((i2c_structure*)I2C3_BASEADDRESS)
-
-// MACROS
 
 /// Macros for Module number
 #define I2C_1	0
@@ -92,43 +91,44 @@ typedef struct
 // Macro to declare the runtime array
 #define I2C_MAX_CONFIGURATION	3
 
-/// Differant speed modes
+/// Macros for i2c_mode
 #define STANDARD_MODE	0
 #define FAST_MODE		1
 
-// ACKNOLEDGEMENT enable or disable
+// Macros for ack_enable_disable
 #define ACK_DISABLED	0
 #define ACK_ENABLED		1
 
-// Clock streching enabled / Disabled
+// Macros for clock_strech_enable_disable
 #define CLOCK_STRECH_ENABLE		0
 #define CLOCK_STRECH_DISABLE	1
 
-// Error interrupts macros
+// Macros for error_interrupt_enable_disable
 #define ERROR_INTERRUPT_DISABLE		0
 #define ERROR_INTERRUPT_ENABLE		1
 
-// Buffer interrupts enable and disable ( Interrupts for TXE and RXNE )
-#define BUFFER_INTERRUPT_ENABLE		1
+// Macros for buffer_interrupt_enable_disable ( Interrupts for TXE and RXNE )
 #define BUFFER_INTERRUPT_DISABLE	0
+#define BUFFER_INTERRUPT_ENABLE		1
 
-// Event interrupt enable and disable ( Interrupts for various events)
+// Macros for event_interrupt_enable_disable - ( Interrupts for various events)
 #define EVENT_INTERRUPT_ENABLE		1
 #define EVENT_INTERRUPT_DISABLE		0
 
-// DMA Enable / Disable
+// Macros for dma_enable_disable
 #define DMA_DISABLE	0
 #define DMA_ENABLE	1
 
-// I2C Enabled / Disabled
+// Macros for i2c_enable_disable
 #define I2C_ENABLE	1
 #define I2C_DISABLE	0
 
 // OK and NOT OK
 #define E_NOT_OK	0
 #define E_OK		1
+#define UNDEFINED	0xFF
 
-// Last transfer enabled / Disabled
+// Macros for set_last_enable_disable
 #define LAST_TRANSFER_DISABLED	0
 #define LAST_TRANSFER_ENABLED	1
 
@@ -154,26 +154,27 @@ typedef struct
 // Global variables declaration
 
 /// Function declarations
-extern void i2c_init (const I2C_Config* config , uint8_t i2c_module_count);
+extern void i2c_init (const I2C_Config* config , const uint8_t i2c_module_count);
+extern void i2c_enable(i2c_structure* module_pointer, uint8_t i2c_enable_disable);
+extern void i2c_set_lastmode (i2c_structure* module_pointer, uint8_t set_last_enable_disable);
+extern void i2c_set_event_interrupt_enable(i2c_structure* module_pointer, uint8_t event_interrupt_enable_disable);
+extern void i2c_set_buffer_interrupt_enable(i2c_structure* module_pointer, uint8_t buffer_interrupt_enable_disable);
+extern void i2c_set_frequency(i2c_structure* module_pointer, uint8_t peripheral_clock_frequency);
+extern void i2c_set_error_interrupt_enable (i2c_structure* module_pointer, uint8_t error_interrupt_enable_disable);
+extern void i2c_set_clockstrech (i2c_structure* module_pointer, uint8_t clock_strech_enable_disable);
+extern void i2c_set_acknoledgement (i2c_structure* module_pointer, uint8_t ack_enable_disable);
+extern void i2c_set_risetime (i2c_structure* module_pointer, uint8_t max_rise_time);
+extern void i2c_set_clock_control_register (i2c_structure* module_pointer , uint16_t clock_control_register);
+extern void i2c_set_mode (i2c_structure* module_pointer , uint8_t mode);
 extern void i2c_reset_peripheral (i2c_structure* module_pointer);
-extern void i2c_set_mode (const I2C_Config* config);
-extern void i2c_set_clock_control_register (const I2C_Config* config);
-extern void i2c_set_risetime (const I2C_Config* config);
-extern void i2c_set_acknoledgement (const I2C_Config* config);
-extern void i2c_set_clockstrech (const I2C_Config* config);
-extern void i2c_set_error_interrupt_enable (const I2C_Config* config);
-extern void i2c_set_frequency(const I2C_Config* config);
-extern void i2c_set_buffer_interrupt_enable(const I2C_Config* config);
-extern void i2c_set_event_interrupt_enable(const I2C_Config* config);
+extern void i2c_copy_contents (const I2C_Config* config);
 extern void i2c_dma_enable(i2c_structure* module_pointer);
-extern void i2c_enable(const I2C_Config* config);
+
 extern void i2c_dma_complete (void *context);
 
 
 extern void i2c_start(I2C_Transaction transaction_structure);
 extern uint8_t i2c_get_driver_runtime(I2C_Transaction transaction_structure , I2C_Runtime** i2c_runtime);
-extern void i2c_set_lastmode (const I2C_Config* config);
-extern void i2c_copy_contents (const I2C_Config* config);
 extern void i2c_stop (I2C_Runtime* i2c_runtime);
 extern void i2c_write_address (i2c_structure *module_pointer, uint8_t data , uint8_t mode);
 extern void i2c_write(i2c_structure *module_pointer, uint8_t *data);

@@ -59,15 +59,15 @@ const I2C_Config i2c_config[] = {
 				STANDARD_MODE,				// i2c Speed mode - Standard or Fast mode
 				80,							// CCR Value . Calculated based on the formula in datasheet . CCR = PCLK1 / (2 × I2C clock) = 16,000,000 / (2 × 100,000)
 				17,							// Max Rise time. Calculated based on the formula . For standard speed , rise time is frequency + 1 = 16+1
-				ACK_ENABLED,				// Acknoledgement is enabled
-				CLOCK_STRECH_ENABLE,		// Clock streching is enabled
-				ERROR_INTERRUPT_ENABLE,		// Enabled the interrupts logging on errors
+				ACK_ENABLED,				// ack_enable_disable - Ack enabled
+				CLOCK_STRECH_ENABLE,		// clock_strech_enable_disable - Clock streching is enabled
+				ERROR_INTERRUPT_ENABLE,		// error_interrupt_enable_disable - Enabled the interrupts logging on errors
 				16,							// Peripheral clock frequency - 16 Mhz frequency
-				BUFFER_INTERRUPT_DISABLE,	// Buffer interrupt is disabled - We dont need that since we are using DMA
-				EVENT_INTERRUPT_ENABLE,		// Event interrupt is enabeld - We need to check events in ISR to write the next operations
-				DMA_ENABLE,					// Enabled the DMA ( Make sure DMA is configured before enabling it )
-				I2C_ENABLE,					// Enabled I2C . Last step , the peripheral will be working now
-				&dma_stream_config[0],		// DMA_Stream_Config - Pointer to the configuration for DMA stream of I2CRX
+				BUFFER_INTERRUPT_DISABLE,	// buffer_interrupt_enable_disable - Buffer interrupt is disabled - We dont need that since we are using DMA
+				EVENT_INTERRUPT_ENABLE,		// event_interrupt_enable_disable - Event interrupt is enabeld - We need to check events in ISR to write the next operations
+				DMA_ENABLE,					// dma_enable_disable - Enabled the DMA ( Make sure DMA is configured before enabling it )
+				I2C_ENABLE,					// i2c_enable_disable - Enabled I2C . Last step , the peripheral will be working now
+				&dma_stream_config[0],		// dma_config - DMA_Stream_Config - Pointer to the configuration for DMA stream of I2CRX
 				LAST_TRANSFER_ENABLED,		// set_last_enable_disable - Enabled - Enabled / Disabled the last transfer mode in I2C
 		},
 };

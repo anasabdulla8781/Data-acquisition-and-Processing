@@ -46,126 +46,138 @@ I2C_Runtime i2c_runtime_config[I2C_MAX_CONFIGURATION];
 
 void i2c_init (const I2C_Config* config , const uint8_t i2c_module_count)
 {
+	if ((config == NULL) || (i2c_module_count > I2C_MAX_CONFIGURATION))
+	{
+		return;
+	}
 	for (uint8_t iter = 0 ; iter <i2c_module_count ; iter++)
 	{
-		i2c_clock_enable(config[iter].module_number);
-		i2c_reset_peripheral(config[iter].module_pointer);
-		i2c_set_mode(&config[iter]);
-		i2c_set_clock_control_register(&config[iter]);
-		i2c_set_risetime(&config[iter]);
-		i2c_set_acknoledgement(&config[iter]);
-		i2c_set_clockstrech(&config[iter]);
-		i2c_set_frequency(&config[iter]);
-		i2c_set_error_interrupt_enable(&config[iter]);
-		i2c_set_event_interrupt_enable(&config[iter]);
-		i2c_set_buffer_interrupt_enable(&config[iter]);
-		i2c_set_lastmode(&config[iter]);
-		i2c_enable(&config[iter]);
-		i2c_copy_contents(&config[iter]);
+
+		if (config[iter].module_pointer != NULL)
+		{
+			i2c_structure* module_pointer = config[iter].module_pointer;
+
+			i2c_clock_enable(config[iter].module_number);
+			i2c_reset_peripheral(module_pointer);
+			i2c_set_mode(module_pointer , config[iter].i2c_mode);
+			i2c_set_clock_control_register(module_pointer , config[iter].ccr);
+			i2c_set_risetime(module_pointer , config[iter].max_rise_time);
+			i2c_set_acknoledgement(module_pointer , config[iter].ack_enable_disable);
+			i2c_set_clockstrech(module_pointer,config[iter].clock_strech_enable_disable);
+			i2c_set_frequency(module_pointer,config[iter].peripheral_clock_frequency);
+			i2c_set_error_interrupt_enable(module_pointer , config[iter].error_interrupt_enable_disable);
+			i2c_set_event_interrupt_enable(module_pointer , config[iter].event_interrupt_enable_disable);
+			i2c_set_buffer_interrupt_enable(module_pointer , config[iter].buffer_interrupt_enable_disable);
+			i2c_copy_contents(&config[iter]);
+			i2c_enable(module_pointer , config[iter].i2c_enable_disable);
+		}
 	}
 }
 
-void i2c_enable(const I2C_Config* config)
+void i2c_enable(i2c_structure* module_pointer, uint8_t i2c_enable_disable)
 {
-	i2c_structure* module_pointer = config->module_pointer;
+	if(i2c_enable_disable > I2C_ENABLE)
+	{
+		return ;
+	}
 	module_pointer->CR1 &= ~(1<<0);											// Clear the current I2C Enable selection
-	module_pointer->CR1 |= ((config->i2c_enable_disable) << 0);				// Set the configured I2C Enable selection
+	module_pointer->CR1 |= (i2c_enable_disable << 0);						// Set the configured I2C Enable selection
 }
 
-
-void i2c_dma_enable(i2c_structure* module_pointer)
+void i2c_set_lastmode (i2c_structure* module_pointer, uint8_t set_last_enable_disable)
 {
-	module_pointer->CR2 &= ~(1<<11);										// Clear the current DMA selection
-	module_pointer->CR2 |= (1 << 11);										// Set the configured DMA selection
-}
-
-void i2c_set_lastmode (const I2C_Config* config)
-{
-	i2c_structure* module_pointer = config->module_pointer;
+	if (set_last_enable_disable > LAST_TRANSFER_ENABLED)
+	{
+		return;
+	}
 	module_pointer->CR2 &= ~(1<<12);											// Clear the last mode
-	module_pointer->CR2 |= ((config->set_last_enable_disable) << 12);			// Set the last mode
+	module_pointer->CR2 |= (set_last_enable_disable << 12);						// Set the last mode
 }
 
-void i2c_set_event_interrupt_enable(const I2C_Config* config)
+void i2c_set_event_interrupt_enable(i2c_structure* module_pointer, uint8_t event_interrupt_enable_disable)
 {
-	i2c_structure* module_pointer = config->module_pointer;
+	if (event_interrupt_enable_disable > EVENT_INTERRUPT_ENABLE)
+	{
+		return;
+	}
 	module_pointer->CR2 &= ~(1<<9);												// Clear the current event interrupt enable selection
-	module_pointer->CR2 |= ((config->event_interrupt_enable_disable) << 9);		// Set the configured event interrupt enable selection bit
+	module_pointer->CR2 |= (event_interrupt_enable_disable << 9);		// Set the configured event interrupt enable selection bit
 }
 
 
-void i2c_set_buffer_interrupt_enable(const I2C_Config* config)
+void i2c_set_buffer_interrupt_enable(i2c_structure* module_pointer, uint8_t buffer_interrupt_enable_disable)
 {
-	i2c_structure* module_pointer = config->module_pointer;
+	if (buffer_interrupt_enable_disable > BUFFER_INTERRUPT_ENABLE)
+	{
+		return;
+	}
 	module_pointer->CR2 &= ~(1<<10);											// Clear the current buffer interrupt enable selection
-	module_pointer->CR2 |= ((config->buffer_interrupt_enable_disable) << 10);	// Set the configured buffer interrupt enable selection bit
+	module_pointer->CR2 |= (buffer_interrupt_enable_disable << 10);				// Set the configured buffer interrupt enable selection bit
 }
 
-void i2c_set_frequency(const I2C_Config* config)
+void i2c_set_frequency(i2c_structure* module_pointer, uint8_t peripheral_clock_frequency)
 {
-	i2c_structure* module_pointer = config->module_pointer;
-
-	if ((config->peripheral_clock_frequency <=50) && (config->peripheral_clock_frequency >=1))
+	if ((peripheral_clock_frequency <=50) && (peripheral_clock_frequency >=1))
 	{
 		module_pointer->CR2 &= ~(0x3F);										// Clear the current peripheral frequency settings
-		module_pointer->CR2 |= (config->peripheral_clock_frequency);		// Set the peripheral clock frequency
+		module_pointer->CR2 |= peripheral_clock_frequency;					// Set the peripheral clock frequency
 	}
 }
 
-void i2c_set_error_interrupt_enable (const I2C_Config* config)
+void i2c_set_error_interrupt_enable (i2c_structure* module_pointer, uint8_t error_interrupt_enable_disable)
 {
-	i2c_structure* module_pointer = config->module_pointer;
-
+	if (error_interrupt_enable_disable > ERROR_INTERRUPT_ENABLE)
+	{
+		return;
+	}
 	module_pointer->CR2 &= ~(1<<8);											// Clear the current configuration of the error interrupt enable bit
-	module_pointer->CR2 |= ((config->error_interrupt_enable_disable) << 8);	// Set the error interrupt enable bit
+	module_pointer->CR2 |= (error_interrupt_enable_disable << 8);			// Set the error interrupt enable bit
 }
 
-void i2c_set_clockstrech (const I2C_Config* config)
+void i2c_set_clockstrech (i2c_structure* module_pointer, uint8_t clock_strech_enable_disable)
 {
-	i2c_structure* module_pointer = config->module_pointer;
-
+	if (clock_strech_enable_disable > CLOCK_STRECH_DISABLE)
+	{
+		return;
+	}
 	module_pointer->CR1 &= ~(1<<7);											// Clear the current configuration in clock strech bit
-	module_pointer->CR1 |= ((config->clock_strech_enable_disable) << 7);	// Set or clear the Clock strech bit
+	module_pointer->CR1 |= (clock_strech_enable_disable << 7);				// Set or clear the Clock strech bit
 }
 
-void i2c_set_acknoledgement (const I2C_Config* config)
+void i2c_set_acknoledgement (i2c_structure* module_pointer, uint8_t ack_enable_disable)
 {
-	i2c_structure* module_pointer = config->module_pointer;
-
+	if (ack_enable_disable > ACK_ENABLED)
+	{
+		return;
+	}
 	module_pointer->CR1 &= ~(1<<10);								// Clear the current selection in the ack bit
-	module_pointer->CR1 |= ((config->ack_enable_disable) << 10);	// Set or clear the ack bit
+	module_pointer->CR1 |= (ack_enable_disable << 10);				// Set or clear the ack bit
 }
 
 
-void i2c_set_risetime (const I2C_Config* config)
+void i2c_set_risetime (i2c_structure* module_pointer, uint8_t max_rise_time)
 {
-	i2c_structure* module_pointer = config->module_pointer;
-
+    if ((module_pointer == NULL) || (max_rise_time > 63U))
+    {
+        return;
+    }
 	module_pointer->TRISE &= ~(0x3F);					// Cleared the current configuration for rise time
-	module_pointer->TRISE |= config->max_rise_time;		// Max rise time
+	module_pointer->TRISE |= max_rise_time;				// Max rise time
 }
 
-void i2c_set_clock_control_register (const I2C_Config* config)
+void i2c_set_clock_control_register (i2c_structure* module_pointer , uint16_t clock_control_register)
 {
-	uint16_t clock_control_register = config->ccr;
-	i2c_structure* module_pointer = config->module_pointer;
-
-
 	clock_control_register &= (0x0FFF);					// Clear the msb 4 bits of the CCR value mentioned
 	module_pointer->CCR &= ~(0x0FFF);					// Clear the first 11 bits in the CCR register
 	module_pointer->CCR |= clock_control_register;		// Set the clock control register 12 bits
-
-
 }
 
-void i2c_set_mode (const I2C_Config* config)
+void i2c_set_mode (i2c_structure* module_pointer , uint8_t mode)
 {
-	uint8_t i2c_mode = config->i2c_speed_mode;
-	i2c_structure* module_pointer = config->module_pointer;
-	if ((i2c_mode == STANDARD_MODE) || (i2c_mode == FAST_MODE))
+	if (mode<= FAST_MODE)
 	{
 		module_pointer->CCR &= ~(1U << 15);				// Clear the CCR bit for speed mode
-		module_pointer->CCR |= (i2c_mode<<15);			// Set the mode mentioned
+		module_pointer->CCR |= (mode<<15);				// Set the mode mentioned
 	}
 	else
 	{
@@ -175,7 +187,7 @@ void i2c_set_mode (const I2C_Config* config)
 
 void i2c_reset_peripheral (i2c_structure* module_pointer)
 {
-	if ((module_pointer == i2c1_ptr) ||(module_pointer == i2c2_ptr) || (module_pointer == i2c3_ptr))
+	if ((module_pointer == i2c1_ptr) || (module_pointer == i2c2_ptr) || (module_pointer == i2c3_ptr))
 	{
 		module_pointer->CR1 |= (1<<15);					// Set the reset bit . Will reset the peripheral
 		module_pointer->CR1 &= ~(1<<15);				// Clear the reset bit . No more reset happens
@@ -188,6 +200,10 @@ void i2c_reset_peripheral (i2c_structure* module_pointer)
 
 void i2c_copy_contents (const I2C_Config* config)
 {
+    if ((config == NULL) || (config->module_pointer == NULL) || (config->module_number >= I2C_MAX_CONFIGURATION))
+    {
+        return;
+    }
 	uint8_t module = config->module_number;
 	i2c_structure* module_pointer = config->module_pointer;
 
@@ -195,6 +211,13 @@ void i2c_copy_contents (const I2C_Config* config)
 	i2c_runtime_config[module].dma_config = config->dma_config;
 	i2c_runtime_config[module].driver_status = I2C_DRIVER_IDLE;
 	i2c_runtime_config[module].module_pointer = module_pointer;
+}
+
+
+void i2c_dma_enable(i2c_structure* module_pointer)
+{
+	module_pointer->CR2 &= ~(1<<11);										// Clear the current DMA selection
+	module_pointer->CR2 |= (1 << 11);										// Set the configured DMA selection
 }
 
 /// **************************************** Module configurations - End ************************************************
