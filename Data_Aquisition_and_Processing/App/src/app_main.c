@@ -140,11 +140,9 @@
   #warning "FPU is not initialized, but the project is compiling for an FPU. Please initialize the FPU before use."
 #endif
 
-uint8_t test_reset = 0;
-
 void service_init()
 {
-	 i2c_init(i2c_config,i2c_config_size);
+	 gpio_init(gpio_pin_config , gpio_pin_config_size);
 }
 
 void app_init()
@@ -170,16 +168,5 @@ int main(void)
     while(1)
     {
 
-    	if (test_reset == 3)
-    	{
-    		test_reset = 0;
-    		software_reset();
-    	}
-//    	feed_watchdog();
-//    	adc_start_conversion(adc1_ptr);
-//    	adc_start_conversion(adc2_ptr);
-//    	adc_get_value(adc1_ptr , &adc_measurement[0]);
-//    	adc_get_value(adc1_ptr , &adc_measurement[1]);
-//    	adc_get_value(adc2_ptr , &adc_measurement[2]);
     }
 }

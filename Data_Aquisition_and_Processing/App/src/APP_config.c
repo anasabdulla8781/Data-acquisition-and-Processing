@@ -16,57 +16,38 @@
 
 // ******************************  GPIO Configuration - START *************************************************************
 
-/// The gpio pins needed to be configured for this project
-//const GPIO_PinConfig_t gpio_pin_config[] = {
-//
-//		/// Generic GPIO Pins used in this project
-//		{	gpioa_ptr,	PIN0,	PIN_ANALOG_INPUT,	PORTA	,AF_INVALID},
-//		{	gpioa_ptr,	PIN1,	PIN_ANALOG_INPUT,	PORTA	,AF_INVALID},
-//		{	gpiob_ptr,	PIN1,	PIN_ANALOG_INPUT,	PORTB	,AF_INVALID},
-//
-//		// GPIO Pin configurations for UART2
-//		{	gpioa_ptr , PIN2 , PIN_ALTERNATE_FUNCTION , PORTA, AF7},
-//		{	gpioa_ptr , PIN3 , PIN_ALTERNATE_FUNCTION , PORTA, AF7},
-//};
-//
-//const uint8_t gpio_pin_config_size = sizeof(gpio_pin_config)/sizeof(gpio_pin_config[0]);
+// The gpio pins needed to be configured for this project
+const GPIO_PinConfig_t gpio_pin_config[] = {
+
+		// GPIO Pin configurations for I2C - FOR SCL line
+		{
+			gpiob_ptr,								// Register_ptr - Pointer to the structure B
+			PIN6,									// Pin_number - Pin 6 of Port B
+			PIN_ALTERNATE_FUNCTION,					// Mode - Alternate function mode
+			PORTB,									// Port_number - Port B
+			AF4,									// Alternate_function_number - AF4
+			OUTPUT_OPEN_DRAIN,						// Output_type - Open drain
+			HIGH_SPEED,								// output_speed - Set High speed
+			NO_PULLUP_PULLDOWN,						// pullup_pulldown_config - No pullup or pulldown needed since it will come with the sensor
+
+		},
+
+		// GPIO Pin configurations for I2C - FOR SDA line
+		{
+			gpiob_ptr,								// Register_ptr - Pointer to the structure B
+			PIN7,									// Pin_number - Pin 7 of Port B
+			PIN_ALTERNATE_FUNCTION,					// Mode - Alternate function mode
+			PORTB,									// Port_number - Port B
+			AF4,									// Alternate_function_number - AF4
+			OUTPUT_OPEN_DRAIN,						// Output_type - Open drain
+			HIGH_SPEED,								// output_speed - Set High speed
+			NO_PULLUP_PULLDOWN,						// pullup_pulldown_config - No pullup or pulldown needed since it will come with the sensor
+		},
+};
+
+const uint8_t gpio_pin_config_size = sizeof(gpio_pin_config)/sizeof(gpio_pin_config[0]);
 
 // ******************************  GPIO Configuration - END   *************************************************************
-
-
-
-
-// ******************************  UART Configuration - START *************************************************************
-
-//const UART_Module_Config uart_config[] = {
-//		{
-//				usart2_ptr,				/// Module pointer UART - Pointer for uart module used
-//				USART_MODULE2,			/// Module number UART - Module number for uart module
-//				9600,					/// Uart_baud rate
-//				0,						/// Uart Oversampling
-//				16000000				/// Clock
-//		}
-//};
-//
-//const uint8_t uart_config_size = sizeof(uart_config)/sizeof(uart_config[0]);
-
-
-// ******************************  UART Configuration - END *************************************************************
-
-
-
-
-// ****************************** WATCHDOG Configuration - START ********************************************************
-
-//const Watchdog_Module_Config watchdog_config = {
-//		iwdg_ptr,				/// Module Poniter
-//		6,						/// Prescalar
-//		10					    /// Watchdog set time
-//};
-
-// ****************************** WATCHDOG Configuration - END **********************************************************
-
-
 
 // ******************************  I2C Configuration - START *************************************************************
 

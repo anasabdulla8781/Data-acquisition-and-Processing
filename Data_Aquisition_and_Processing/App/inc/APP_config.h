@@ -10,6 +10,7 @@
 
 #include "stdint.h"
 #include "service.h"
+#include "third_party.h"
 
 
 /// Project specific macros
@@ -25,7 +26,6 @@ extern uint8_t reset_reason;
 extern char reset_reason_string[25];
 extern char temp_csr_print[50];
 
-extern uint8_t test_reset;
 
 /// GPIO
 extern const GPIO_PinConfig_t gpio_pin_config[] ;

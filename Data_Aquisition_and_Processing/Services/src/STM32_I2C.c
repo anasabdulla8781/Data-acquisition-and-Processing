@@ -194,7 +194,7 @@ void i2c_copy_contents (const I2C_Config* config)
 	i2c_runtime_config[module].bus_state = I2C_BUS_IDLE;
 	i2c_runtime_config[module].dma_config = config->dma_config;
 	i2c_runtime_config[module].driver_status = I2C_DRIVER_IDLE;
-	i2c_runtime_config[module].module_pointer = module;
+	i2c_runtime_config[module].module_pointer = module_pointer;
 }
 
 /// **************************************** Module configurations - End ************************************************
@@ -314,7 +314,7 @@ void i2c_eventhandler (uint8_t module)
 			switch(i2c_runtime->bus_state)
 			{
 			case I2C_BUS_ADDRESS_WRITE:
-				i2c_write( i2c_runtime->module_pointer , i2c_runtime->active_transaction.start_register_address);							// Initial address writing was success , so adding register address and we can restart from here
+				i2c_write( i2c_runtime->module_pointer , i2c_runtime->active_transaction.register_address);							// Initial address writing was success , so adding register address and we can restart from here
 				i2c_runtime->bus_state = I2C_BUS_REGISTER;
 				break;
 			case I2C_BUS_ADDRESS_READ:
@@ -347,7 +347,7 @@ void i2c_eventhandler (uint8_t module)
 				}
 				else
 				{
-					i2c_write(i2c_runtime->active_transaction);
+					i2c_write(i2c_runtime->module_pointer , i2c_runtime->active_transaction.result_array);
 					i2c_runtime->bus_state = I2C_BUS_DATA_SEND;
 				}
 				break;
@@ -362,9 +362,9 @@ void i2c_eventhandler (uint8_t module)
 }
 
 
-void i2c_write(i2c_structure *module_pointer, uint8_t data)
+void i2c_write(i2c_structure *module_pointer, uint8_t *data)
 {
-    module_pointer->DR = data;
+    module_pointer->DR = *data;
 }
 
 

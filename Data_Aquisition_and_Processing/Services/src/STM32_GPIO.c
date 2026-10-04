@@ -11,21 +11,27 @@
 
 void gpio_init(const GPIO_PinConfig_t* config ,  const uint8_t size)
 {
+	if (config == NULL)
+	{
+		return;
+	}
 	for (uint8_t iter = 0; iter<size ; iter++)
 	{
 		// Step 1 - Clock init for all the pins
 		gpio_clock_enable(config[iter].port_number);
 		// Step 2 - Set the configuration for the register
 		gpio_pin_set_mode(config[iter].pin_number , config[iter].mode , config[iter].register_ptr);
-		// Step 3 - Set to alternate function mode if its not invalid
-		if ((config[iter].alternate_function_number) != AF_INVALID)
+		// Step 3 - Set to alternate function mode.
+		if (config[iter].mode == PIN_ALTERNATE_FUNCTION)
 		{
 			gpio_set_alternate_function (config[iter].register_ptr , config[iter].pin_number , config[iter].alternate_function_number);
 		}
-		else
-		{
-			// Do nothing
-		}
+		// Step 4  - Set the Output type
+		gpio_set_output_type (config[iter].register_ptr , config[iter].pin_number , config[iter].output_type);
+		// Step 5 - Set the output speed
+		gpio_set_output_speed(config[iter].register_ptr , config[iter].pin_number , config[iter].output_speed);
+		// Step 6 - Set pullup / pulldown resistor
+		gpio_set_pullup_pulldown(config[iter].register_ptr , config[iter].pin_number , config[iter].pullup_pulldown_config);
 	}
 }
 
@@ -119,24 +125,5 @@ void gpio_spi1_config(void)
 	gpio_set_pullup_pulldown(gpioa_ptr, SPI1_MISO, PULLUP);
 	/// Step 6 - Making the default Cs pin high
 	gpio_output_operations(gpioa_ptr,SPI1_NSS,SET_HIGH);
-}
-
-void gpio_i2c_config(void)
-{
-	/// Step 1 - Set the pins we are using to alternate function mode ( PB6 and PB7 )
-	gpio_pin_set_mode(6,PIN_ALTERNATE_FUNCTION,gpiob_ptr);		/// To set PB6 to alternate function mode
-	gpio_pin_set_mode(7,PIN_ALTERNATE_FUNCTION,gpiob_ptr);		/// To set PB7 to alternate function mode
-	/// Step 2 - Set the alternate modes properly
-	gpio_set_alternate_function(gpiob_ptr,6,AF4);
-	gpio_set_alternate_function(gpiob_ptr,7,AF4);
-	/// Step 3 - Set the gpio pins to open drain configuration
-	gpio_set_output_type(gpiob_ptr,6,OUTPUT_OPEN_DRAIN);
-	gpio_set_output_type(gpiob_ptr,7,OUTPUT_OPEN_DRAIN);
-	/// Step 4 - Set the output speeds
-	gpio_set_output_speed(gpiob_ptr, 6 , VERY_HIGH_SPEED);
-	gpio_set_output_speed(gpiob_ptr, 7 , VERY_HIGH_SPEED);
-	/// Step 5 - Set the Pull up resistors
-	gpio_set_pullup_pulldown(gpiob_ptr, 6 , PULLUP);
-	gpio_set_pullup_pulldown(gpiob_ptr, 7 , PULLUP);
 }
 
