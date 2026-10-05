@@ -77,6 +77,34 @@ const uint8_t i2c_config_size = sizeof (i2c_config) / sizeof(i2c_config[0]);
 
 // ******************************  I2C Configuration - END *************************************************************
 
+// ******************************  NVIC Configuration - START *************************************************************
+
+// Init configuration for NVIC Module . Fixed configuration
+const NVIC_Config nvic_config[] =
+{
+		 // DMA interrupt configuration
+	    {
+	    		DMA0_STREAM0_INTERRUPT_NUMBER,					// Interrupt_number 11 - DMA interrupt enable
+				PRIORITY_LEVEL_5,								// Priority
+				INTERRUPT_ENABLE								// Enable / Disable
+	    },
+		// I2C event interrupt configuration
+		{
+				I2C1_EVENT_INTERRUPT_NUMBER,					// Interrupt_number 31 - I2C event interrupt enable
+				PRIORITY_LEVEL_5,								// Priority - 5
+				INTERRUPT_ENABLE								// Enable / Disable - Enable
+		},
+		// I2C error interrupt configuration
+		{
+				I2C1_ERROR_INTERRUPT_NUMBER,					// Interrupt_number 32 - I2C error interrupt enable
+				PRIORITY_LEVEL_5,								// Priority - 5
+				INTERRUPT_ENABLE								// Enable / Disable - Enable
+		},
+};
+
+const uint8_t nvic_config_size = sizeof(nvic_config) / sizeof(nvic_config[0]);
+
+// ******************************  NVIC Configuration - START *************************************************************
 
 
 
@@ -109,7 +137,6 @@ const uint8_t i2c_config_size = sizeof (i2c_config) / sizeof(i2c_config[0]);
 
 // *******************************************************************************************
 /// The dma streams to be configured for this project
-uint8_t mpu_6050_data[6];
 const DMA_Stream_Config dma_stream_config[] =
 {
 		/// Configuration for the DMA1 - stream 0 - channel 1 for 12c1 RX
@@ -120,7 +147,7 @@ const DMA_Stream_Config dma_stream_config[] =
 				DMA1_STREAM0_IC21RX,							// channel_request - Application can request the channel needed , DMA will fetch the suitable channel based on the lookup table
 				PERIPHERAL_TO_MEMORY,							// Direction - Peripheral to memory here since we need to copy the contents from I2C Dr to memory
 				&(i2c1_ptr->DR),								// Peripheral address - The register address from where DMA need to copy the data
-				&(mpu_6050_data[0]),							// memory_address - The data will be copied to here
+				NULL,											// memory_address - The data will be copied to here
 				6,												// transfer_count - NDTR . Number of bytes to be transferred
 				PERIPHERAL_DATA_REG_8BIT,						// psize - Peripheral data size ( Need to read 8bits from DR at a time)
 				MEMORY_SIZE_8BIT,								// msize - Need to copy 8 bits to the memory at a time
@@ -129,6 +156,7 @@ const DMA_Stream_Config dma_stream_config[] =
 				CIRCULAR_MODE_DISABLE,							// circular_mode - Disabled - No need of circular mode , DMA need to stop after completing the transfer .. we are stoping the i2c as well
 				HIGH_PRIORITY,									// priority - Priority is given as high priority
 				i2c_dma_complete,								// callback_ptr - Function which need to be called after completing i2c dma event
+				&i2c_runtime_config[0],
 		},
 };
 

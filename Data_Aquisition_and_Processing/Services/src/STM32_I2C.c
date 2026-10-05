@@ -225,20 +225,31 @@ void i2c_dma_enable(i2c_structure* module_pointer)
 
 /// **************************************** Module Functionalities - Start ************************************************
 
-void i2c_start(I2C_Transaction transaction_structure)
+uint8_t i2c_start(I2C_Transaction transaction_structure)
 {
 	I2C_Runtime* i2c_runtime = NULL;
 
 	if (i2c_get_driver_runtime(transaction_structure, &i2c_runtime) == E_OK)											//	Get the driver corresponding to the transaction mentioned
 	{
-		if ((i2c_runtime->driver_status == I2C_DRIVER_IDLE) && (i2c_runtime->bus_state == I2C_BUS_IDLE))
+		if ((i2c_runtime->driver_status == I2C_DRIVER_IDLE) && (i2c_runtime->bus_state == I2C_BUS_IDLE) && (i2c_runtime->module_pointer != NULL))
 		{
 			i2c_structure*module_ptr = i2c_runtime->module_pointer;
 			i2c_runtime->active_transaction = transaction_structure;												// The driver is ready to take the transaction , so copied the contents to the driver structure
-			i2c_runtime->driver_status = I2C_DRIVER_BUSY;															// Set the driver to busy to avoid further transactions ( if  another start request comes for the same bus )
-			module_ptr->CR1 |= (1<<8);																				// Set the start bit for the module we wanted to communicate . This will clear automatically by HW after setting the start condition
-			i2c_runtime->bus_state = I2C_BUS_START;
+
+			i2c_runtime->driver_status = I2C_DRIVER_BUSY;										// Set the driver to busy to avoid further transactions ( if  another start request comes for the same bus )
+			i2c_runtime->bus_state = I2C_BUS_START;												// Set the start bit for the module we wanted to communicate . This will clear automatically by HW after setting the start condition
+
+			module_ptr->CR1 |= (1<<8);
+			return E_OK;
 		}
+		else
+		{
+			return E_NOT_OK;
+		}
+	}
+	else
+	{
+		return E_NOT_OK;
 	}
 
 }
@@ -257,6 +268,20 @@ uint8_t i2c_get_driver_runtime(I2C_Transaction transaction_structure , I2C_Runti
 	return E_NOT_OK;
 }
 
+void i2c_stop (I2C_Runtime* i2c_runtime)
+{
+	if ((i2c_runtime == NULL) || (i2c_runtime->module_pointer == NULL))
+	{
+		return;
+	}
+	i2c_structure*module_ptr = i2c_runtime->module_pointer;
+	module_ptr->CR1 |= (1<<9);
+
+	i2c_runtime->bus_state = I2C_BUS_STOP;												// Send the stop command for the bus
+}
+
+
+/// **************************************** Callback and Event handler ( ISR Related ) - Start ************************************************
 
 void i2c_dma_complete (void *context)										// Callback function which need to be called once the i2c dma event is completed
 {
@@ -264,26 +289,6 @@ void i2c_dma_complete (void *context)										// Callback function which need t
 	i2c_stop(i2c_runtime);													// I2C Stop function
 }
 
-void i2c_stop (I2C_Runtime* i2c_runtime)
-{
-	i2c_structure*module_ptr = i2c_runtime->module_pointer;
-	module_ptr->CR1 |= (1<<9);
-	i2c_runtime->driver_status = I2C_DRIVER_IDLE;
-	i2c_runtime->bus_state = I2C_BUS_IDLE;
-}
-
-
-const DMA_Stream_Config* i2c_get_dma_details(i2c_structure* ptr)
-{
-	for ( uint8_t iter = 0 ; iter <  I2C_MAX_CONFIGURATION ; iter++)
-	{
-		if (i2c_runtime_config[iter].module_pointer == ptr )
-		{
-			return (i2c_runtime_config[iter].dma_config);
-		}
-	}
-	return NULL;
-}
 
 /* Events
  *
@@ -307,21 +312,29 @@ void i2c_eventhandler (uint8_t module)
 	{
 		// Fetch the Runtime configuration of the driver
 		I2C_Runtime *i2c_runtime = &i2c_runtime_config[module];
-		const DMA_Stream_Config *dma_stream = NULL;
+		// Local variables for Module pointer and active transaction and the DMA stream configurations
+		i2c_structure* module_pointer = i2c_runtime->module_pointer;
+		I2C_Transaction active_transaction =i2c_runtime->active_transaction;
+		const DMA_Stream_Config* dma_stream =i2c_runtime->dma_config;
+
+		if ((i2c_runtime->module_pointer == NULL) || (dma_stream == NULL ))
+		{
+		    return;
+		}
 		// Event handlings
 
 
 		// Handling the SB Event
-		if (i2c_runtime->module_pointer->SR1 & (1 << 0x00))													/// Interrupt triggered through start bit event
+		if (module_pointer->SR1 & (1 << 0x00))													/// Interrupt triggered through start bit event
 		{
 			switch(i2c_runtime->bus_state)
 			{
 			case I2C_BUS_START:
-				i2c_write_address(i2c_runtime->module_pointer , i2c_runtime->active_transaction.slave_address , I2C_WRITE);								/// Write the address in write mode and set the bus state to ADDR mode
+				i2c_write_address( module_pointer , active_transaction.slave_address, I2C_WRITE);								/// Write the address in write mode and set the bus state to ADDR mode
 				i2c_runtime->bus_state = I2C_BUS_ADDRESS_WRITE;
 				break;
 			case I2C_BUS_REPEATED_START:
-				i2c_write_address(i2c_runtime->module_pointer , i2c_runtime->active_transaction.slave_address , I2C_READ);								/// Now entering in read mode from the register
+				i2c_write_address(module_pointer , active_transaction.slave_address , I2C_READ);								/// Now entering in read mode from the register
 				i2c_runtime->bus_state = I2C_BUS_ADDRESS_READ;
 				break;
 			default:
@@ -329,28 +342,39 @@ void i2c_eventhandler (uint8_t module)
 			}
 		}
 		// Handling the ADDR Event
-		else if (i2c_runtime->module_pointer->SR1 & (1 << 0x01))
+		else if (module_pointer->SR1 & (1 << 0x01))
 		{
-			volatile uint32_t status_Reg;
-			status_Reg = i2c_runtime->module_pointer->SR1;													// Reading SR1 and 2 for clearing the status
-			status_Reg = i2c_runtime->module_pointer->SR2;
+			(void)module_pointer->SR1;
+			(void)module_pointer->SR2;
+
 			switch(i2c_runtime->bus_state)
 			{
 			case I2C_BUS_ADDRESS_WRITE:
-				i2c_write( i2c_runtime->module_pointer , i2c_runtime->active_transaction.register_address);							// Initial address writing was success , so adding register address and we can restart from here
+				i2c_write_byte( module_pointer , active_transaction.register_address);							// Initial address writing was success , so adding register address and we can restart from here
 				i2c_runtime->bus_state = I2C_BUS_REGISTER;
 				break;
 			case I2C_BUS_ADDRESS_READ:
 																											// Need to enable the DMA Here
-				dma_stream = i2c_get_dma_details(i2c_runtime->module_pointer);
-				if (dma_stream != NULL)
+				if ((dma_stream != NULL) && (dma_stream->module_pointer != NULL))
 				{
 					i2c_runtime->bus_state = I2C_BUS_DATA_READ;
-					dma_set_runtime_ndtr(dma_stream->module_pointer , i2c_runtime->active_transaction.data_length);
-					dma_set_runtime_memory_address(dma_stream->module_pointer , i2c_runtime->active_transaction.result_array);
-					dma_set_runtime_direction(dma_stream->module_pointer , i2c_runtime->active_transaction.direction);
-					dma_enable(dma_stream->module_pointer);
-					i2c_dma_enable(i2c_runtime->module_pointer);
+					i2c_set_lastmode (module_pointer, LAST_TRANSFER_ENABLED);
+
+					dma_set_ndtr(dma_stream , active_transaction.data_length);
+
+					if (active_transaction.direction == I2C_READ)
+					{
+						dma_set_memory_address(dma_stream,active_transaction.rx_buffer);
+					    dma_set_direction(dma_stream, PERIPHERAL_TO_MEMORY);
+					}
+					else
+					{
+						dma_set_memory_address(dma_stream,active_transaction.tx_buffer);
+					    dma_set_direction(dma_stream, MEMORY_TO_PERIPHERAL);
+					}
+					dma_enable(dma_stream);
+
+					i2c_dma_enable(module_pointer);
 				}
 				break;
 			default :
@@ -358,36 +382,63 @@ void i2c_eventhandler (uint8_t module)
 			}
 		}
 		// Handling the BTF event
-		else if (i2c_runtime->module_pointer->SR1 & (1 << 0x02))
+		else if (module_pointer->SR1 & (1 << 0x02))
 		{
 			switch(i2c_runtime->bus_state)
 			{
 			case I2C_BUS_REGISTER:
-				if (i2c_runtime->active_transaction.direction == I2C_READ)
+				if (active_transaction.direction == I2C_READ)
 				{
-					i2c_runtime->module_pointer->CR1 |= (1<<8);												// Repeated start
+					module_pointer->CR1 |= (1<<8);												// Repeated start
 					i2c_runtime->bus_state = I2C_BUS_REPEATED_START;
 				}
 				else
 				{
-					i2c_write(i2c_runtime->module_pointer , i2c_runtime->active_transaction.result_array);
+					i2c_write(module_pointer , active_transaction.tx_buffer);
 					i2c_runtime->bus_state = I2C_BUS_DATA_SEND;
 				}
 				break;
 			case I2C_BUS_DATA_READ:
-																													//	No need to do anything here . DMA will handle it
+										//	No need to do anything here . DMA will handle it
 				break;
 			default :
 				break;
 			}
 		}
+		// Handling stop event
+		else if (module_pointer->SR1 & (1 << 0x04))
+		{
+			switch(i2c_runtime->bus_state)
+			{
+			case I2C_BUS_STOP:
+				i2c_runtime->bus_state = I2C_BUS_IDLE;
+				i2c_runtime->driver_status = I2C_DRIVER_IDLE;
+				break;
+			default :
+				break;
+			}
+		}
+		else
+		{
+			// Do nothing
+		}
 	}
 }
 
 
-void i2c_write(i2c_structure *module_pointer, uint8_t *data)
+uint8_t i2c_write(i2c_structure *module_pointer, uint8_t *data)
 {
+	if (data == NULL)
+	{
+		return E_NOT_OK;
+	}
     module_pointer->DR = *data;
+    return E_OK;
+}
+
+void i2c_write_byte(i2c_structure *module_pointer, uint8_t data)
+{
+    module_pointer->DR = data;
 }
 
 

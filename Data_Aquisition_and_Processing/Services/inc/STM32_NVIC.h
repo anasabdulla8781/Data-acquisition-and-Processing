@@ -33,6 +33,13 @@ typedef struct
 } NVIC_structure;
 
 
+typedef struct
+{
+    uint8_t interrupt_number;
+    uint8_t priority;
+    uint8_t enable;
+} NVIC_Config;
+
 /// NVIC base address
 #define NVIC_BASEADDRESS	0xE000E100
 
@@ -47,6 +54,7 @@ typedef struct
 #define ENABLE_USART2_INTERRUPT 1<<6
 #define ENABLE_I2C1_EVENT_INTERRUPT	 1<<31
 #define ENABLE_I2C1_ERROR_INTERRUPT	 1<<0
+#define ENABLE_DMA1_STREAM0_INTERRUPT    (1U << 11)
 
 /// Nested vector table
 
@@ -54,8 +62,17 @@ typedef struct
 #define TIM4_ISR_NUMBER	30
 #define EXTIO_ISR_NUMBER 6
 
+#define I2C1_EVENT_INTERRUPT_NUMBER		31
+#define I2C1_ERROR_INTERRUPT_NUMBER		32
+#define DMA0_STREAM0_INTERRUPT_NUMBER	11
 
-void nvic_init(uint8_t interrupt_number);
+#define PRIORITY_LEVEL_5	5
+
+#define INTERRUPT_ENABLE	1
+#define INTERRUPT_DISABLE	0
+
+
+extern void nvic_init(const NVIC_Config *config, uint8_t count);
 
 
 

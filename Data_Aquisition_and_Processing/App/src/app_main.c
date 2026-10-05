@@ -142,7 +142,10 @@
 
 void service_init()
 {
+	 nvic_init(nvic_config , nvic_config_size);
 	 gpio_init(gpio_pin_config , gpio_pin_config_size);
+	 dma_init(dma_stream_config , dma_stream_count);
+	 i2c_init( i2c_config, i2c_config_size );
 }
 
 void app_init()
@@ -155,16 +158,6 @@ int main(void)
 
 	service_init();
     app_init();
-    uart_write_producer_circular("========================================");
-    uart_write_producer_circular("        RESET DIAGNOSTICS SYSTEM        ");
-    uart_write_producer_circular("========================================");
-    uart_write_producer_circular("      System Booted Successfully        ");
-    uart_write_producer_circular("========================================");
-    uart_write_producer_circular(temp_csr_print);
-    print_reset_reason();
-
-
-
     while(1)
     {
 

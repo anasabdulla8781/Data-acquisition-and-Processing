@@ -56,7 +56,7 @@ typedef struct dma_stream_config
 	dma_stream_combinations channel_request;
 	uint8_t direction;
 	volatile uint32_t* peripheral_address;
-	volatile uint32_t* memory_address;
+	uint8_t* memory_address;
 	uint16_t transfer_count;
 	uint8_t psize;
 	uint8_t msize;
@@ -64,7 +64,7 @@ typedef struct dma_stream_config
 	uint8_t peripheral_increment_mode;
 	uint8_t circular_mode;
 	uint8_t priority;
-	void (*callback_ptr)(uint8_t);
+	void (*callback_ptr)(void*);
 	void* context;
 }DMA_Stream_Config;
 
@@ -118,18 +118,17 @@ typedef struct dma_stream_config
 /// Fucntion declarations
 void dma_init(DMA_Stream_Config* config , uint8_t dma_stream_count);
 void dma_set_channel(DMA_Stream_Config* config);
-void dma_set_direction(DMA_Stream_Config* config);
+void dma_set_direction(const DMA_Stream_Config *config, uint8_t direction);
 void dma_set_peripheral_address(DMA_Stream_Config* config);
-void dma_set_memory_address(DMA_Stream_Config* config);
-void dma_set_ndtr(DMA_Stream_Config* config);
+extern void dma_set_memory_address(const DMA_Stream_Config *config, uint8_t *address);
+extern void dma_set_ndtr(const DMA_Stream_Config *config, uint16_t count);
 void dma_set_psize_msize(DMA_Stream_Config* config);
 void dma_set_peripheral_memory_increment_mode(DMA_Stream_Config* config);
 void dma_set_circular_mode(DMA_Stream_Config* config);
 void dma_set_priority(DMA_Stream_Config* config);
-void dma_enable(DMA_Stream_Config* config);
+void dma_enable(const DMA_Stream_Config* config);
 void dma_disable(DMA_Stream_Config* config);
-void dma_set_runtime_ndtr(const DMA_Stream_Config *config, uint16_t count);
-void dma_set_runtime_memory_address(const DMA_Stream_Config *config, uint8_t *address);
-void dma_set_runtime_direction(const DMA_Stream_Config *config, uint8_t direction);
+
+void dma_eventhandler(DMA_structure *module_pointer, uint8_t stream);
 
 #endif /* INC_STM32_DMA_H_ */

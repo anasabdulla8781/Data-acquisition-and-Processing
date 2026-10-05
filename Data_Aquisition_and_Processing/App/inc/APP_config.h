@@ -58,6 +58,9 @@ extern volatile uint32_t adc_measurement[3];
 /// I2C
 extern const I2C_Config i2c_config[];
 extern const uint8_t i2c_config_size ;
-extern uint8_t mpu_6050_data[6];
+
+// NVIC
+extern const NVIC_Config nvic_config[];
+extern const uint8_t nvic_config_size;
 
 #endif /* INC_APP_CONFIG_H_ */

@@ -50,18 +50,22 @@ typedef struct
 	uint8_t set_last_enable_disable;
 }I2C_Config;
 
+
 /// Structure for the transactions  ( Application layer has to use to share the slave and register info to the driver ) - Differant structures for each sensors
 
 typedef struct
 {
 	i2c_structure* module_pointer;
+
 	uint8_t slave_address;
 	uint8_t register_address;
+
 	uint8_t direction;
 	uint8_t data_length;
-	uint8_t* result_array;
-}I2C_Transaction;
 
+	uint8_t* rx_buffer;
+	uint8_t* tx_buffer;
+}I2C_Transaction;
 
 /// Structure hold by I2C for transaction control ( Each driver will have seperate onces , we will arrange in common array )
 typedef struct
@@ -168,16 +172,21 @@ extern void i2c_set_clock_control_register (i2c_structure* module_pointer , uint
 extern void i2c_set_mode (i2c_structure* module_pointer , uint8_t mode);
 extern void i2c_reset_peripheral (i2c_structure* module_pointer);
 extern void i2c_copy_contents (const I2C_Config* config);
-extern void i2c_dma_enable(i2c_structure* module_pointer);
 
+extern void i2c_dma_enable(i2c_structure* module_pointer);
 extern void i2c_dma_complete (void *context);
 
-
-extern void i2c_start(I2C_Transaction transaction_structure);
-extern uint8_t i2c_get_driver_runtime(I2C_Transaction transaction_structure , I2C_Runtime** i2c_runtime);
-extern void i2c_stop (I2C_Runtime* i2c_runtime);
+extern void i2c_write_byte(i2c_structure *module_pointer, uint8_t data);
+extern uint8_t i2c_write(i2c_structure *module_pointer, uint8_t *data);
 extern void i2c_write_address (i2c_structure *module_pointer, uint8_t data , uint8_t mode);
-extern void i2c_write(i2c_structure *module_pointer, uint8_t *data);
 
+extern uint8_t i2c_start(I2C_Transaction transaction_structure);
+extern void i2c_stop (I2C_Runtime* i2c_runtime);
+
+extern uint8_t i2c_get_driver_runtime(I2C_Transaction transaction_structure , I2C_Runtime** i2c_runtime);
+extern void i2c_eventhandler (uint8_t module);
+
+
+extern I2C_Runtime i2c_runtime_config[I2C_MAX_CONFIGURATION];
 
 #endif /* INC_STM32_I2C_H_ */
