@@ -135,14 +135,24 @@
 #include <app_feature.h>
 #include "APP_task.h"
 #include "APP_config.h"
+#include "MPU_6050.h"
 
 #if !defined(__SOFT_FP__) && defined(__ARM_FP)
   #warning "FPU is not initialized, but the project is compiling for an FPU. Please initialize the FPU before use."
 #endif
 
+uint32_t test = 0;
+
 void service_init()
 {
 	 nvic_init(nvic_config , nvic_config_size);
+
+	 gpio_pin_set_mode(PIN6 ,PIN_OUTPUT , gpiob_ptr);
+	 gpio_pin_set_mode(PIN7 ,PIN_OUTPUT , gpiob_ptr);
+
+	 gpio_output_operations(gpiob_ptr , PIN6 , SET_HIGH);
+	 gpio_output_operations(gpiob_ptr , PIN7 , SET_HIGH);
+
 	 gpio_init(gpio_pin_config , gpio_pin_config_size);
 	 dma_init(dma_stream_config , dma_stream_count);
 	 i2c_init( i2c_config, i2c_config_size );
@@ -150,7 +160,7 @@ void service_init()
 
 void app_init()
 {
-	;
+//	i2c_start(transaction_6050_who_am_i);
 }
 
 int main(void)
@@ -160,6 +170,11 @@ int main(void)
     app_init();
     while(1)
     {
-
+    	test ++;
+    	if (test == 5000)
+    	{
+    		i2c_start(transaction_6050_who_am_i);
+    		test = 0;
+    	}
     }
 }

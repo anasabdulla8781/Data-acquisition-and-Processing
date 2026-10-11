@@ -46,6 +46,7 @@ void dma_init(DMA_Stream_Config* config , uint8_t dma_stream_count)
 		dma_set_peripheral_memory_increment_mode(&config[iter]);
 		dma_set_circular_mode(&config[iter]);
 		dma_set_priority(&config[iter]);
+		dma_set_TCIE(&config[iter]);
 
 		DMA_stream_ptr = config;
 		DMA_stream_count = dma_stream_count;
@@ -162,6 +163,18 @@ void dma_disable ( DMA_Stream_Config * config )
 	module_pointer->STREAM[stream].CR &= ~(1 << 0);
 
 	while ((module_pointer->STREAM[stream].CR) & (1u<<0));
+}
+
+
+void dma_set_TCIE ( DMA_Stream_Config * config )
+{
+	DMA_structure* module_pointer = (config->module_pointer);
+	uint8_t stream = config->dma_stream;
+
+	/// Clear the TCIE Bit
+	module_pointer->STREAM[stream].CR &= ~(1<<4);
+	/// Set the TCIE Bit
+	module_pointer->STREAM[stream].CR |= ((config->TCIE) << 4);
 }
 
 

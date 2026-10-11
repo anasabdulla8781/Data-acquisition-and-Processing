@@ -62,7 +62,6 @@ void i2c_init (const I2C_Config* config , const uint8_t i2c_module_count)
 			i2c_set_mode(module_pointer , config[iter].i2c_mode);
 			i2c_set_clock_control_register(module_pointer , config[iter].ccr);
 			i2c_set_risetime(module_pointer , config[iter].max_rise_time);
-			i2c_set_acknoledgement(module_pointer , config[iter].ack_enable_disable);
 			i2c_set_clockstrech(module_pointer,config[iter].clock_strech_enable_disable);
 			i2c_set_frequency(module_pointer,config[iter].peripheral_clock_frequency);
 			i2c_set_error_interrupt_enable(module_pointer , config[iter].error_interrupt_enable_disable);
@@ -70,6 +69,7 @@ void i2c_init (const I2C_Config* config , const uint8_t i2c_module_count)
 			i2c_set_buffer_interrupt_enable(module_pointer , config[iter].buffer_interrupt_enable_disable);
 			i2c_copy_contents(&config[iter]);
 			i2c_enable(module_pointer , config[iter].i2c_enable_disable);
+			i2c_set_acknoledgement(module_pointer , config[iter].ack_enable_disable);
 		}
 	}
 }
@@ -261,8 +261,11 @@ uint8_t i2c_get_driver_runtime(I2C_Transaction transaction_structure , I2C_Runti
 	{
 		if (transaction_structure.module_pointer == i2c_runtime_config[iter].module_pointer)
 		{
-			*i2c_runtime = &i2c_runtime_config[iter];
-			return E_OK;
+			if (i2c_stop_check(&i2c_runtime_config[iter]) == E_OK )
+			{
+				*i2c_runtime = &i2c_runtime_config[iter];
+				return E_OK;
+			}
 		}
 	}
 	return E_NOT_OK;
@@ -282,6 +285,39 @@ void i2c_stop (I2C_Runtime* i2c_runtime)
 
 
 /// **************************************** Callback and Event handler ( ISR Related ) - Start ************************************************
+
+uint8_t i2c_stop_check(I2C_Runtime *i2c_runtime)
+{
+    if ((i2c_runtime == NULL) || (i2c_runtime->module_pointer == NULL))
+    {
+        return E_NOT_OK;
+    }
+
+    i2c_structure *module_ptr = i2c_runtime->module_pointer;
+
+//    if (i2c_runtime->bus_state != I2C_BUS_STOP)
+//    {
+//        return E_NOT_OK;
+//    }
+
+    // Check whether STOP request has been cleared
+    if ((module_ptr->CR1 & (1U << 9)) != 0U)
+    {
+        return E_NOT_OK;
+    }
+
+    // Check whether the I2C bus is still busy
+    if ((module_ptr->SR2 & (1U << 1)) != 0U)
+    {
+        return E_NOT_OK;
+    }
+
+    // STOP completed and bus is free
+    i2c_runtime->bus_state = I2C_BUS_IDLE;
+    i2c_runtime->driver_status = I2C_DRIVER_IDLE;
+
+    return E_OK;
+}
 
 void i2c_dma_complete (void *context)										// Callback function which need to be called once the i2c dma event is completed
 {
@@ -344,16 +380,25 @@ void i2c_eventhandler (uint8_t module)
 		// Handling the ADDR Event
 		else if (module_pointer->SR1 & (1 << 0x01))
 		{
-			(void)module_pointer->SR1;
-			(void)module_pointer->SR2;
-
 			switch(i2c_runtime->bus_state)
 			{
 			case I2C_BUS_ADDRESS_WRITE:
+
+				(void)module_pointer->SR1;
+				(void)module_pointer->SR2;
+
 				i2c_write_byte( module_pointer , active_transaction.register_address);							// Initial address writing was success , so adding register address and we can restart from here
 				i2c_runtime->bus_state = I2C_BUS_REGISTER;
 				break;
 			case I2C_BUS_ADDRESS_READ:
+
+				if (active_transaction.data_length == 1)
+				{
+					module_pointer->CR1 &= ~(1U << 10);										/// Disable the ackoledgement for a single byte read ( Thats the protocol ). This shoud be done before clearing the addr event by reading SR
+				}
+
+				(void)module_pointer->SR1;
+				(void)module_pointer->SR2;
 																											// Need to enable the DMA Here
 				if ((dma_stream != NULL) && (dma_stream->module_pointer != NULL))
 				{
@@ -399,7 +444,7 @@ void i2c_eventhandler (uint8_t module)
 				}
 				break;
 			case I2C_BUS_DATA_READ:
-										//	No need to do anything here . DMA will handle it
+																						//	No need to do anything here . DMA will handle it
 				break;
 			default :
 				break;

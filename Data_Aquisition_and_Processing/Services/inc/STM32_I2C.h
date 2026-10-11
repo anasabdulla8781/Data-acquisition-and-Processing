@@ -182,6 +182,7 @@ extern void i2c_write_address (i2c_structure *module_pointer, uint8_t data , uin
 
 extern uint8_t i2c_start(I2C_Transaction transaction_structure);
 extern void i2c_stop (I2C_Runtime* i2c_runtime);
+extern uint8_t i2c_stop_check(I2C_Runtime *i2c_runtime);
 
 extern uint8_t i2c_get_driver_runtime(I2C_Transaction transaction_structure , I2C_Runtime** i2c_runtime);
 extern void i2c_eventhandler (uint8_t module);

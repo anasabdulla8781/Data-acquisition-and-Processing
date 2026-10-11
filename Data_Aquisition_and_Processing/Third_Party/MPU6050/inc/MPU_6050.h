@@ -27,5 +27,7 @@
 
 // RX buffer
 extern uint8_t mpu_6050_rx_buffer[MAX_BUFFER_SIZE];
+extern uint8_t who_am_i;
+extern I2C_Transaction transaction_6050_who_am_i;
 
 #endif /* MPU6050_INC_MPU_6050_H_ */

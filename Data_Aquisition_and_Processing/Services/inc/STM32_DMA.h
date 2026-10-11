@@ -66,6 +66,7 @@ typedef struct dma_stream_config
 	uint8_t priority;
 	void (*callback_ptr)(void*);
 	void* context;
+	uint8_t TCIE;
 }DMA_Stream_Config;
 
 #define CHANNEL0	0
@@ -112,6 +113,11 @@ typedef struct dma_stream_config
 #define HIGH_PRIORITY 2
 #define VERY_HIGH_PRIORITY	3
 
+// Macros for Transfer complete interrupt enable ( TCIE )
+#define TCIE_DISABLED	0
+#define TCIE_ENABLED	1
+
+
 
 
 
@@ -128,6 +134,7 @@ void dma_set_circular_mode(DMA_Stream_Config* config);
 void dma_set_priority(DMA_Stream_Config* config);
 void dma_enable(const DMA_Stream_Config* config);
 void dma_disable(DMA_Stream_Config* config);
+void dma_set_TCIE ( DMA_Stream_Config * config);
 
 void dma_eventhandler(DMA_structure *module_pointer, uint8_t stream);
 

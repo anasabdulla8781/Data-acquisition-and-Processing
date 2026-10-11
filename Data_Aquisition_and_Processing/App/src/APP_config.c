@@ -28,7 +28,7 @@ const GPIO_PinConfig_t gpio_pin_config[] = {
 			AF4,									// Alternate_function_number - AF4
 			OUTPUT_OPEN_DRAIN,						// Output_type - Open drain
 			HIGH_SPEED,								// output_speed - Set High speed
-			NO_PULLUP_PULLDOWN,						// pullup_pulldown_config - No pullup or pulldown needed since it will come with the sensor
+			PULLUP,						// pullup_pulldown_config - No pullup or pulldown needed since it will come with the sensor
 
 		},
 
@@ -41,7 +41,7 @@ const GPIO_PinConfig_t gpio_pin_config[] = {
 			AF4,									// Alternate_function_number - AF4
 			OUTPUT_OPEN_DRAIN,						// Output_type - Open drain
 			HIGH_SPEED,								// output_speed - Set High speed
-			NO_PULLUP_PULLDOWN,						// pullup_pulldown_config - No pullup or pulldown needed since it will come with the sensor
+			PULLUP,						// pullup_pulldown_config - No pullup or pulldown needed since it will come with the sensor
 		},
 };
 
@@ -156,7 +156,8 @@ const DMA_Stream_Config dma_stream_config[] =
 				CIRCULAR_MODE_DISABLE,							// circular_mode - Disabled - No need of circular mode , DMA need to stop after completing the transfer .. we are stoping the i2c as well
 				HIGH_PRIORITY,									// priority - Priority is given as high priority
 				i2c_dma_complete,								// callback_ptr - Function which need to be called after completing i2c dma event
-				&i2c_runtime_config[0],
+				&i2c_runtime_config[0],							// context - Context need to be used while using the callback
+				TCIE_ENABLED,									// TCIE - Enabled the transfer complete interrupt enable - to call the DMA isr
 		},
 };
 
