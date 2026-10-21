@@ -171,10 +171,14 @@ int main(void)
     while(1)
     {
     	test ++;
-    	if (test == 5000)
+    	if (test == 8000)
     	{
     		i2c_start(transaction_6050_who_am_i);
     		test = 0;
     	}
+    	else if (test == 4000)
+		{
+    		i2c_start(transaction_6050_who_am_i2);
+		}
     }
 }
