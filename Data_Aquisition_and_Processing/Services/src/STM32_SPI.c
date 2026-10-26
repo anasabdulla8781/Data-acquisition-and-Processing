@@ -12,24 +12,118 @@
 /*        spi_structure  		 GPIO_structure		 cs_pin			 miso_pin		 mosi_pin		clock_pin*/
 spi_device spi1_config = {	spi1_ptr , 			gpioa_ptr , 		SPI1_NSS,		SPI1_MISO,		SPI1_MOSI , 	SPI1_SCLK};
 
-void spi_init_config(spi_structure* spi_ptr)
-{
-	/// STEP 1 - We reset the CR1 register in starting ( to avoid previous pending things )
-	spi_ptr->CR1 = 0;
-	/// STEP 2 - We set the SPI in the board in master mode
-	spi_ptr->CR1 |= (1 << 2);
-	/// STEP 3 - Setting the baud rate needed in starting
-	spi_ptr->CR1 &= ~(0x07 << 3);					/// Clearing the baud rate bits for SPI
-	spi_ptr->CR1 |= (3 << 3);						/// Setting the baud rate with 011
-	/// STEP 4 - Setting the polarity and phase to 0
-	spi_ptr->CR1 &= ~(0x03 << 0);					/// Clearing the first 2 bits for Polarity and Phase ( No need of setting it to 0 manually )
-	/// Step 5 - 8 bit data format
-	spi_ptr->CR1 &= ~(0x01 << 11);					/// Clearing the 11th bit , no need of explicitly
-	/// Step 6 - Explicitly mentioning that NSS pins are manual controlled (SSM and SSI bits to be 1)
-	spi_ptr->CR1 |= (0x03 << 8);
-	/// Step 7 - Turn On SPI (Enable SPI Peripheral)
-	spi_ptr->CR1 |= (0x01 << 6);
 
+void spi_init(const SPI_Config* config , const uint8_t module_count )
+{
+	if ((config == NULL) || (module_count == 0))
+	{
+		return;
+	}
+
+	for (uint8_t iter = 0u; iter <module_count ; iter++)
+	{
+		if (config[iter].module_pointer != NULL)
+		{
+			spi_structure* module_pointer = config[iter].module_pointer;
+			// Set the SPI Clock ( Clock enable )
+			spi_clock_enable(config[iter].module_number);
+			// Reset the whole CR1 and CR2 for the module
+			spi_reset_config(module_pointer);
+			// Set polarity and phase
+			spi_set_polarity_phase(module_pointer,config[iter].polarity_and_phase);
+			// Set the mode for the controller
+			spi_set_mode(module_pointer , config[iter].mode);
+			// Set the baudrate (prescalar) for the module
+			spi_set_prescalar(module_pointer , config[iter].prescalar);
+			// Set the frameformat
+			spi_set_frameformat(module_pointer , config[iter].frame_format);
+			// Set the software slave management
+			spi_set_software_slave_management(module_pointer , config[iter].ssm_config);
+			// Set the slave select initial value
+			spi_set_internal_slave_select(module_pointer , config[iter].ssi_config);
+			// Enable SPI
+			spi_enable(module_pointer);
+		}
+	}
+
+}
+
+void spi_reset_config(spi_structure* module_pointer)
+{
+	module_pointer->CR1 = 0u;
+	module_pointer->CR2 = 0u;
+}
+
+void spi_set_polarity_phase (spi_structure* module_pointer , uint8_t polarity_and_phase)
+{
+	if (polarity_and_phase > POLARITY_PHASE3)
+	{
+		return ;
+	}
+	module_pointer->CR1 &= ~(0x03 << 0);					// Cleared the polarity and phase bits from the CR1
+	module_pointer->CR1 |= (polarity_and_phase << 0);		// Set the polarity and phase
+}
+
+void spi_set_mode (spi_structure* module_pointer , uint8_t mode)
+{
+	if (mode > MASTER_MODE)
+	{
+		return;
+	}
+
+	module_pointer->CR1 &= ~(0x01 << 2);						// Clear the mode
+	module_pointer->CR1 |= (mode << 2);							// Set the mode
+}
+
+void spi_set_prescalar (spi_structure* module_pointer , uint8_t prescalar)
+{
+	if (prescalar > PRESCALAR256)
+	{
+		return;
+	}
+
+	module_pointer->CR1 &= ~(0x07 << 3);						// Clear the Prescalar setting
+	module_pointer->CR1 |= (prescalar << 3);					// Set the Prescalar
+}
+
+void spi_set_frameformat (spi_structure* module_pointer , uint8_t frame_format)
+{
+	if (frame_format > BITFORMART16)
+	{
+		return;
+	}
+
+	module_pointer->CR1 &= ~(0x01 << 11);						// Clear the current frameformat setting
+	module_pointer->CR1 |= (frame_format << 11);				// Set the frame format setting
+}
+
+
+void spi_set_software_slave_management(spi_structure *module_pointer, uint8_t ssm_config)
+{
+    if (ssm_config > SSM_SOFTWARE)
+    {
+        return;
+    }
+
+    module_pointer->CR1 &= ~(0x01U << 9);       				// Clear SSM bit
+    module_pointer->CR1 |=  (ssm_config << 9);  				// Set SSM bit
+}
+
+
+void spi_set_internal_slave_select(spi_structure *module_pointer, uint8_t ssi_config)
+{
+    if (ssi_config > SSI_HIGH)
+    {
+        return;
+    }
+
+    module_pointer->CR1 &= ~(0x01U << 8);						// Clear SSI bit
+    module_pointer->CR1 |= ((uint32_t)ssi_config << 8);			// Set SSI bit
+}
+
+void spi_enable(spi_structure* module_pointer)
+{
+	module_pointer->CR1 |= (0x01 << 6);
 }
 
 /// Make sure CS pin is low before calling the function and make CS pin to high after completing the function ( after return )

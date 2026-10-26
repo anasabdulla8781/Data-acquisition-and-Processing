@@ -28,8 +28,8 @@ const GPIO_PinConfig_t gpio_pin_config[] = {
 			AF4,									// Alternate_function_number - AF4
 			OUTPUT_OPEN_DRAIN,						// Output_type - Open drain
 			HIGH_SPEED,								// output_speed - Set High speed
-			PULLUP,						// pullup_pulldown_config - No pullup or pulldown needed since it will come with the sensor
-
+			PULLUP,									// pullup_pulldown_config - No pullup or pulldown needed since it will come with the sensor
+			DEFAULT_HIGH,							// Keeping the line default High ( No impact since the Pullup resister will anyway pull the line High )
 		},
 
 		// GPIO Pin configurations for I2C - FOR SDA line
@@ -41,7 +41,60 @@ const GPIO_PinConfig_t gpio_pin_config[] = {
 			AF4,									// Alternate_function_number - AF4
 			OUTPUT_OPEN_DRAIN,						// Output_type - Open drain
 			HIGH_SPEED,								// output_speed - Set High speed
-			PULLUP,						// pullup_pulldown_config - No pullup or pulldown needed since it will come with the sensor
+			PULLUP,									// pullup_pulldown_config - No pullup or pulldown needed since it will come with the sensor
+			DEFAULT_HIGH,							// Keeping the line default High ( No impact since the Pullup resister will anyway pull the line High )
+		},
+
+		// GPIO Pin configurations for SPI1 - For SCK Line
+		{
+		    gpioa_ptr,                              // Register_ptr - Pointer to the structure A
+		    PIN5,                                   // Pin_number - Pin 5 of Port A
+		    PIN_ALTERNATE_FUNCTION,                 // Mode - Alternate function mode
+		    PORTA,                                  // Port_number - Port A
+		    AF5,                                    // Alternate_function_number - AF5 (SPI1_SCK)
+		    OUTPUT_PUSH_PULL,                       // Output_type - Push-pull ( Clock need to be set high and low )
+		    HIGH_SPEED,                             // output_speed - Set High speed
+		    NO_PULLUP_PULLDOWN,                     // pullup_pulldown_config - No pull-up or pull-down
+			DEFAULT_LOW,							// No need to keep it as default High .. Setting it as default Low
+		},
+
+		// GPIO Pin configurations for SPI1 - For MISO Line
+		{
+		    gpioa_ptr,                              // Register_ptr - Pointer to the structure A
+		    PIN6,                                   // Pin_number - Pin 6 of Port A
+		    PIN_ALTERNATE_FUNCTION,                 // Mode - Alternate function mode
+		    PORTA,                                  // Port_number - Port A
+		    AF5,                                    // Alternate_function_number - AF5 (SPI1_MISO)
+		    OUTPUT_PUSH_PULL,                       // Output_type - Not significant for SPI input ( This is input line )
+		    HIGH_SPEED,                             // output_speed - Set High speed
+		    NO_PULLUP_PULLDOWN,                     // pullup_pulldown_config - No pull-up or pull-down
+			DEFAULT_LOW,							// No need to keep it as default High .. Setting it as default Low
+		},
+
+		// GPIO Pin configurations for SPI1 - For MOSI Line
+		{
+		    gpioa_ptr,                              // Register_ptr - Pointer to the structure A
+		    PIN7,                                   // Pin_number - Pin 7 of Port A
+		    PIN_ALTERNATE_FUNCTION,                 // Mode - Alternate function mode
+		    PORTA,                                  // Port_number - Port A
+		    AF5,                                    // Alternate_function_number - AF5 (SPI1_MOSI)
+		    OUTPUT_PUSH_PULL,                       // Output_type - Push-pull
+		    HIGH_SPEED,                             // output_speed - Set High speed
+		    NO_PULLUP_PULLDOWN,                     // pullup_pulldown_config - No pull-up or pull-down
+			DEFAULT_LOW,							// No need to keep it as default High .. Setting it as default Low
+		},
+
+		// GPIO Pin configuration for BMP280 - For CS Line
+		{
+		    gpioa_ptr,                              // Register_ptr - Pointer to the structure A
+		    PIN4,                                   // Pin_number - Pin 4 of Port A
+		    PIN_OUTPUT,                             // Mode - General-purpose output mode
+		    PORTA,                                  // Port_number - Port A
+		    AF_UNDEFINED,                           // Alternate_function_number - Not used for GPIO output
+		    OUTPUT_PUSH_PULL,                       // Output_type - Push-pull
+		    HIGH_SPEED,                             // output_speed - Set High speed
+		    NO_PULLUP_PULLDOWN,                     // pullup_pulldown_config - No pull-up or pull-down
+			DEFAULT_HIGH,							// Making the pin to default high so that CS pin will be high from starting
 		},
 };
 
@@ -76,6 +129,24 @@ const uint8_t i2c_config_size = sizeof (i2c_config) / sizeof(i2c_config[0]);
 
 
 // ******************************  I2C Configuration - END *************************************************************
+
+// ******************************  SPI Configuration - START *************************************************************
+
+const SPI_Config spi_config[] = {
+		{
+				SPI1,						// module_number - Using SPI1 for our project ( For configuring BMP280 )
+				spi1_ptr,					// module_pointer - Pointer for the SPI1 Register
+				POLARITY_PHASE0,			// polarity_and_phase - Setting the Polarity to 0 , Phase to 0
+				MASTER_MODE,				// mode - Set the master mode
+				PRESCALAR16,				// prescalar - Setting prescalar 16 ( fclk / 16 )
+				BITFORMART8,				// frame_format - Setting 8 bit frame format
+				SSM_SOFTWARE, 				// ssm_config - Handling SSM through Software
+				SSI_HIGH,					// ssi_config - Default SSI Line
+		},
+};
+
+const uint8_t spi_config_size = sizeof (spi_config) / sizeof(spi_config[0]);
+// ******************************  SPI Configuration - END *************************************************************
 
 // ******************************  NVIC Configuration - START *************************************************************
 

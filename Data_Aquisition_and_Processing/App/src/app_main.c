@@ -142,6 +142,7 @@
 #endif
 
 uint32_t test = 0;
+ uint8_t chip_id = 0;
 
 void service_init()
 {
@@ -155,7 +156,15 @@ void service_init()
 
 	 gpio_init(gpio_pin_config , gpio_pin_config_size);
 	 dma_init(dma_stream_config , dma_stream_count);
+
+//	 FPU_Enable();
+
 	 i2c_init( i2c_config, i2c_config_size );
+	 spi_init(spi_config , spi_config_size);
+
+	 for(volatile int i=0;i<5000;i++);
+
+	 bmp280_init();
 }
 
 void app_init()
@@ -168,17 +177,25 @@ int main(void)
 
 	service_init();
     app_init();
+
+
+
     while(1)
     {
     	test ++;
-    	if (test == 8000)
+    	if (test == 600000)
     	{
-    		i2c_start(transaction_6050_who_am_i);
+//    		bmp280_init();
+
+    		bmp280_burst_read(&spi1_config, 0xD0, &chip_id, 1);
+//    		bmp280_get_temperature();
+//    		i2c_start(transaction_6050_who_am_i);
     		test = 0;
     	}
-    	else if (test == 4000)
-		{
-    		i2c_start(transaction_6050_who_am_i2);
-		}
+    	else if (test == 300000)
+    	{
+    		bmp280_get_temperature();
+    	}
+
     }
 }

@@ -19,8 +19,8 @@ void gpio_init(const GPIO_PinConfig_t* config ,  const uint8_t size)
 	{
 		// Step 1 - Clock init for all the pins
 		gpio_clock_enable(config[iter].port_number);
-		// Step 2 - Set the configuration for the register
-		gpio_pin_set_mode(config[iter].pin_number , config[iter].mode , config[iter].register_ptr);
+		// Step 2 - Setting the default pin state
+		gpio_bit_set_reset(config[iter].register_ptr , config[iter].pin_number , config[iter].bit_set_reset);
 		// Step 3 - Set to alternate function mode.
 		if (config[iter].mode == PIN_ALTERNATE_FUNCTION)
 		{
@@ -32,6 +32,8 @@ void gpio_init(const GPIO_PinConfig_t* config ,  const uint8_t size)
 		gpio_set_output_speed(config[iter].register_ptr , config[iter].pin_number , config[iter].output_speed);
 		// Step 6 - Set pullup / pulldown resistor
 		gpio_set_pullup_pulldown(config[iter].register_ptr , config[iter].pin_number , config[iter].pullup_pulldown_config);
+		// Step 7 - Set the configuration for the register ( Setting mode - Good to do it in the end .. after all the configurations )
+		gpio_pin_set_mode(config[iter].pin_number , config[iter].mode , config[iter].register_ptr);
 	}
 }
 
@@ -99,31 +101,21 @@ void gpio_set_pullup_pulldown(GPIO_structure* gpio_ptr , uint8_t pin_number , ui
 	gpio_ptr->PUPDR |= ( pullup_down_value << (pin_number*2));				/// We set the output speed
 }
 
-void gpio_spi1_config(void)
+void gpio_bit_set_reset(GPIO_structure* gpio_ptr , uint8_t pin_number , uint8_t bit_set_reset)
 {
-	/// Step 1 - Setting the pins in alternate function mode
-	gpio_pin_set_mode(SPI1_NSS,PIN_OUTPUT,gpioa_ptr);								/// PA4 Set in Output mode for SPI1 NSS (Chip select pin , we need control over it)
-	gpio_pin_set_mode(SPI1_SCLK,PIN_ALTERNATE_FUNCTION,gpioa_ptr);					/// PA5 Set in alternate function mode for SPI1 SCLK
-	gpio_pin_set_mode(SPI1_MISO,PIN_ALTERNATE_FUNCTION,gpioa_ptr);					/// PA6 Set in alternate function mode for SPI1 MISO
-	gpio_pin_set_mode(SPI1_MOSI,PIN_ALTERNATE_FUNCTION,gpioa_ptr);					/// PA7 Set in alternate function mode for SPI1 MOSI
-	/// Step 2 - Setting these pins to AF5
-	gpio_set_alternate_function(gpioa_ptr,SPI1_SCLK,AF5);							/// PA5 - AF5
-	gpio_set_alternate_function(gpioa_ptr,SPI1_MISO,AF5);							/// PA6 - AF5
-	gpio_set_alternate_function(gpioa_ptr,SPI1_MOSI,AF5);							/// PA7 - AF5
-	/// Step 3 - Setting the Output types as pushpull - SPI needs it (Miso is input , leave it)
-	gpio_set_output_type(gpioa_ptr,SPI1_NSS,OUTPUT_PUSH_PULL);
-	gpio_set_output_type(gpioa_ptr,SPI1_SCLK,OUTPUT_PUSH_PULL);
-	gpio_set_output_type(gpioa_ptr,SPI1_MOSI,OUTPUT_PUSH_PULL);
-	/// Step 4 - Setting the output pin speeds
-	gpio_set_output_speed(gpioa_ptr,SPI1_NSS,VERY_HIGH_SPEED);
-	gpio_set_output_speed(gpioa_ptr,SPI1_SCLK,VERY_HIGH_SPEED);
-	gpio_set_output_speed(gpioa_ptr,SPI1_MOSI,VERY_HIGH_SPEED);
-	/// Step 5 - Configure pull-up/pull-down (none required for SPI)
-	gpio_set_pullup_pulldown(gpioa_ptr,SPI1_NSS,NO_PULLUP_PULLDOWN);
-	gpio_set_pullup_pulldown(gpioa_ptr,SPI1_SCLK,NO_PULLUP_PULLDOWN);
-	gpio_set_pullup_pulldown(gpioa_ptr,SPI1_MOSI,NO_PULLUP_PULLDOWN);
-	gpio_set_pullup_pulldown(gpioa_ptr, SPI1_MISO, PULLUP);
-	/// Step 6 - Making the default Cs pin high
-	gpio_output_operations(gpioa_ptr,SPI1_NSS,SET_HIGH);
+	if (pin_number>15 || bit_set_reset > 1)	return;						/// Pin shouldnt be more than 15 and either low or high for the Pin
+
+	switch(bit_set_reset)
+	{
+	case DEFAULT_LOW:
+		gpio_ptr->BSRR = (1<<(pin_number+16)) ;							/// Clearing (Resetting the pin)
+		break;
+	case DEFAULT_HIGH:
+		gpio_ptr->BSRR = (1<<pin_number) ;								/// Setting the pin
+		break;
+
+	default:
+		break;
+	}
 }
 

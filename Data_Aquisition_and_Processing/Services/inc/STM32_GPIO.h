@@ -37,6 +37,7 @@ typedef struct GPIO_PinConfig_t				// Init structure for the gpio pins using in 
 	uint8_t output_type;
 	uint8_t output_speed;
 	uint8_t pullup_pulldown_config;
+	uint8_t bit_set_reset;
 }GPIO_PinConfig_t;
 
 
@@ -146,6 +147,10 @@ typedef struct GPIO_PinConfig_t				// Init structure for the gpio pins using in 
 #define SPI1_MISO	6
 #define SPI1_MOSI	7
 
+/// Macros for bit_set_reset
+#define DEFAULT_HIGH	1
+#define DEFAULT_LOW		0
+
 
 /// FUNCTION DECLARATIONS
 extern void gpio_pin_set_mode(uint8_t pin , uint8_t mode , GPIO_structure* gpio_ptr);
@@ -154,8 +159,7 @@ extern void gpio_set_alternate_function(GPIO_structure* gpio_ptr , uint8_t pin_n
 extern void gpio_set_output_type(GPIO_structure* gpio_ptr , uint8_t pin_number , uint8_t output_type);
 extern void gpio_set_output_speed(GPIO_structure* gpio_ptr , uint8_t pin_number , uint8_t output_speed);
 extern void gpio_set_pullup_pulldown(GPIO_structure* gpio_ptr , uint8_t pin_number , uint8_t pullup_down_value);
-extern void gpio_i2c_config(void);
-extern void gpio_spi1_config(void);
+extern void gpio_bit_set_reset(GPIO_structure* gpio_ptr , uint8_t pin_number , uint8_t bit_set_reset);
 
 /// Making generic init for all
 extern void gpio_init(const GPIO_PinConfig_t* config ,  const uint8_t size);

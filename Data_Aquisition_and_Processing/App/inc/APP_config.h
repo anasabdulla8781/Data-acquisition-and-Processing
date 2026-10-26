@@ -59,6 +59,10 @@ extern volatile uint32_t adc_measurement[3];
 extern const I2C_Config i2c_config[];
 extern const uint8_t i2c_config_size ;
 
+/// SPI
+extern const SPI_Config spi_config[];
+extern const uint8_t spi_config_size;
+
 // NVIC
 extern const NVIC_Config nvic_config[];
 extern const uint8_t nvic_config_size;
