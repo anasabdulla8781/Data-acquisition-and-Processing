@@ -107,7 +107,7 @@ typedef struct
 extern spi_device spi1_config;
 
 /// Function declarations
-extern uint8_t spi_transfer(spi_structure* spi_ptr , uint8_t data);
+extern uint8_t spi_transfer_polling(spi_structure* spi_ptr , uint8_t data);
 extern void spi_transfer_buffer(spi_structure* spi_ptr, uint8_t *tx_buffer, uint8_t *rx_buffer, uint32_t length);
 extern void spi_init(const SPI_Config* config , const uint8_t module_count );
 extern void spi_reset_config(spi_structure* module_pointer);

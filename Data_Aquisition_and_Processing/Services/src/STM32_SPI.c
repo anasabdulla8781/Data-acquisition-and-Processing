@@ -13,6 +13,8 @@
 spi_device spi1_config = {	spi1_ptr , 			gpioa_ptr , 		SPI1_NSS,		SPI1_MISO,		SPI1_MOSI , 	SPI1_SCLK};
 
 
+/// **************************************** Module configurations - Start ************************************************
+
 void spi_init(const SPI_Config* config , const uint8_t module_count )
 {
 	if ((config == NULL) || (module_count == 0))
@@ -126,21 +128,28 @@ void spi_enable(spi_structure* module_pointer)
 	module_pointer->CR1 |= (0x01 << 6);
 }
 
+
+/// **************************************** Module configurations - END ************************************************
+
+
+
+/// **************************************** Module Functionalities - START ************************************************
+
 /// Make sure CS pin is low before calling the function and make CS pin to high after completing the function ( after return )
-uint8_t spi_transfer(spi_structure* spi_ptr , uint8_t data)
+uint8_t spi_transfer_polling(spi_structure* spi_ptr , uint8_t write_byte)
 {
 	/// Step 1 - Wait till the transmit buffer become empty
 	while (!(spi_ptr->SR & (1<<1)));
 	/// Step 2 - Write the data (one byte to the DR)
-	spi_ptr->DR = data;
+	spi_ptr->DR = write_byte;
 	/// Step 3 - Wait till the recieve buffet become non empty
 	while(!(spi_ptr->SR & (1<<0)));
 	/// Step 4 - Read the data (One byte from the read buffer)
-	uint8_t received = spi_ptr->DR;
+	uint8_t read_byte = spi_ptr->DR;
 	/// Step 5 - Wait till the busy flag get over .
 	while(spi_ptr->SR & (1<<7));
 	/// Step 6 - Return the function
-	return received;
+	return read_byte;
 }
 
 
@@ -155,7 +164,7 @@ void spi_transfer_buffer(spi_structure* spi_ptr, uint8_t *tx_buffer, uint8_t *rx
             tx_data = tx_buffer[i];
         }
 
-        uint8_t received = spi_transfer(spi_ptr, tx_data);
+        uint8_t received = spi_transfer_polling(spi_ptr, tx_data);
 
         if(rx_buffer != NULL)
         {
