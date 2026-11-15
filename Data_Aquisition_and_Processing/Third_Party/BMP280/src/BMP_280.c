@@ -24,11 +24,11 @@ void bmp280_burst_read(spi_device* spi_config , uint8_t reg, uint8_t * rx_buffer
 	/// Added a small delay after making that pin
 	for(volatile int i=0;i<200;i++);
 	/// STEP 2 - Send the first byte address in read mode so that the reading will start . No need to read the return value . That will be garbage
-	spi_transfer(spi_config->spi_ptr , (reg |BMP280_SPI_READ_MASK));
+	spi_transfer_polling(spi_config->spi_ptr , (reg |BMP280_SPI_READ_MASK));
 	/// STEP 3 - recieve the buffers in the bursting way
 	for (uint16_t i=0 ; i<length ; i++)
 	{
-		rx_buffer[i] = spi_transfer(spi_config->spi_ptr , 0xFF);
+		rx_buffer[i] = spi_transfer_polling(spi_config->spi_ptr , 0xFF);
 	}
 	/// STEP 4 - Completed the data transfer . Now make the CS pin high
 	gpio_output_operations(spi_config->gpio_ptr,spi_config->cs_pin,SET_HIGH);
@@ -168,9 +168,9 @@ void bmp280_write_register(spi_device* spi_config , uint8_t reg , uint8_t value)
 	gpio_output_operations(spi_config->gpio_ptr,spi_config->cs_pin,SET_LOW);
 	for(volatile int i=0;i<50;i++);
 	/// STEP 2 - Set the configuration address to write mode
-	spi_transfer(spi_config->spi_ptr , (reg & BMP280_SPI_WRITE_MASK));
+	spi_transfer_polling(spi_config->spi_ptr , (reg & BMP280_SPI_WRITE_MASK));
 	/// STEP 3 - Send the actual data
-	spi_transfer(spi_config->spi_ptr , value);
+	spi_transfer_polling(spi_config->spi_ptr , value);
 	/// STEP 4 - Make the pin high
 	gpio_output_operations(spi_config->gpio_ptr,spi_config->cs_pin,SET_HIGH);
 

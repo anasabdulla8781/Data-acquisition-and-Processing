@@ -10,6 +10,7 @@
 
 
 #include <stdint.h>
+#include "stddef.h"
 
 /// RCC Structure
 
@@ -130,6 +131,7 @@ extern void spi_clock_enable(uint8_t module);
 extern void syscfg_clock_enable(void);
 extern void dma_clock_enable(uint8_t module);
 extern void print_reset_reason (void);
+extern void LSI_clock_enable (void);
 
 
 #endif /* INC_STM32_RCC_H_ */

@@ -135,21 +135,41 @@
 #include <app_feature.h>
 #include "APP_task.h"
 #include "APP_config.h"
+#include "MPU_6050.h"
 
 #if !defined(__SOFT_FP__) && defined(__ARM_FP)
   #warning "FPU is not initialized, but the project is compiling for an FPU. Please initialize the FPU before use."
 #endif
 
-uint8_t test_reset = 0;
+uint32_t test = 0;
+ uint8_t chip_id = 0;
 
 void service_init()
 {
-	 i2c_init(i2c_config,i2c_config_size);
+	 nvic_init(nvic_config , nvic_config_size);
+
+	 gpio_pin_set_mode(PIN6 ,PIN_OUTPUT , gpiob_ptr);
+	 gpio_pin_set_mode(PIN7 ,PIN_OUTPUT , gpiob_ptr);
+
+	 gpio_output_operations(gpiob_ptr , PIN6 , SET_HIGH);
+	 gpio_output_operations(gpiob_ptr , PIN7 , SET_HIGH);
+
+	 gpio_init(gpio_pin_config , gpio_pin_config_size);
+	 dma_init(dma_stream_config , dma_stream_count);
+
+//	 FPU_Enable();
+
+	 i2c_init( i2c_config, i2c_config_size );
+	 spi_init(spi_config , spi_config_size);
+
+	 for(volatile int i=0;i<5000;i++);
+
+	 bmp280_init();
 }
 
 void app_init()
 {
-	;
+//	i2c_start(transaction_6050_who_am_i);
 }
 
 int main(void)
@@ -157,29 +177,24 @@ int main(void)
 
 	service_init();
     app_init();
-    uart_write_producer_circular("========================================");
-    uart_write_producer_circular("        RESET DIAGNOSTICS SYSTEM        ");
-    uart_write_producer_circular("========================================");
-    uart_write_producer_circular("      System Booted Successfully        ");
-    uart_write_producer_circular("========================================");
-    uart_write_producer_circular(temp_csr_print);
-    print_reset_reason();
 
 
 
     while(1)
     {
-
-    	if (test_reset == 3)
+    	test ++;
+    	if (test == 600000)
     	{
-    		test_reset = 0;
-    		software_reset();
+//    		bmp280_init();
+//    		bmp280_burst_read(&spi1_config, 0xD0, &chip_id, 1);
+//    		bmp280_get_temperature();
+//    		i2c_start(transaction_6050_who_am_i);
+    		test = 0;
     	}
-//    	feed_watchdog();
-//    	adc_start_conversion(adc1_ptr);
-//    	adc_start_conversion(adc2_ptr);
-//    	adc_get_value(adc1_ptr , &adc_measurement[0]);
-//    	adc_get_value(adc1_ptr , &adc_measurement[1]);
-//    	adc_get_value(adc2_ptr , &adc_measurement[2]);
+    	else if (test == 300000)
+    	{
+    		bmp280_get_temperature();
+    	}
+
     }
 }

@@ -10,6 +10,7 @@
 
 #include "stdint.h"
 #include "service.h"
+#include "third_party.h"
 
 
 /// Project specific macros
@@ -25,7 +26,6 @@ extern uint8_t reset_reason;
 extern char reset_reason_string[25];
 extern char temp_csr_print[50];
 
-extern uint8_t test_reset;
 
 /// GPIO
 extern const GPIO_PinConfig_t gpio_pin_config[] ;
@@ -58,5 +58,13 @@ extern volatile uint32_t adc_measurement[3];
 /// I2C
 extern const I2C_Config i2c_config[];
 extern const uint8_t i2c_config_size ;
+
+/// SPI
+extern const SPI_Config spi_config[];
+extern const uint8_t spi_config_size;
+
+// NVIC
+extern const NVIC_Config nvic_config[];
+extern const uint8_t nvic_config_size;
 
 #endif /* INC_APP_CONFIG_H_ */

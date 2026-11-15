@@ -16,57 +16,91 @@
 
 // ******************************  GPIO Configuration - START *************************************************************
 
-/// The gpio pins needed to be configured for this project
-//const GPIO_PinConfig_t gpio_pin_config[] = {
-//
-//		/// Generic GPIO Pins used in this project
-//		{	gpioa_ptr,	PIN0,	PIN_ANALOG_INPUT,	PORTA	,AF_INVALID},
-//		{	gpioa_ptr,	PIN1,	PIN_ANALOG_INPUT,	PORTA	,AF_INVALID},
-//		{	gpiob_ptr,	PIN1,	PIN_ANALOG_INPUT,	PORTB	,AF_INVALID},
-//
-//		// GPIO Pin configurations for UART2
-//		{	gpioa_ptr , PIN2 , PIN_ALTERNATE_FUNCTION , PORTA, AF7},
-//		{	gpioa_ptr , PIN3 , PIN_ALTERNATE_FUNCTION , PORTA, AF7},
-//};
-//
-//const uint8_t gpio_pin_config_size = sizeof(gpio_pin_config)/sizeof(gpio_pin_config[0]);
+// The gpio pins needed to be configured for this project
+const GPIO_PinConfig_t gpio_pin_config[] = {
+
+		// GPIO Pin configurations for I2C - FOR SCL line
+		{
+			gpiob_ptr,								// Register_ptr - Pointer to the structure B
+			PIN6,									// Pin_number - Pin 6 of Port B
+			PIN_ALTERNATE_FUNCTION,					// Mode - Alternate function mode
+			PORTB,									// Port_number - Port B
+			AF4,									// Alternate_function_number - AF4
+			OUTPUT_OPEN_DRAIN,						// Output_type - Open drain
+			HIGH_SPEED,								// output_speed - Set High speed
+			PULLUP,									// pullup_pulldown_config - No pullup or pulldown needed since it will come with the sensor
+			DEFAULT_HIGH,							// Keeping the line default High ( No impact since the Pullup resister will anyway pull the line High )
+		},
+
+		// GPIO Pin configurations for I2C - FOR SDA line
+		{
+			gpiob_ptr,								// Register_ptr - Pointer to the structure B
+			PIN7,									// Pin_number - Pin 7 of Port B
+			PIN_ALTERNATE_FUNCTION,					// Mode - Alternate function mode
+			PORTB,									// Port_number - Port B
+			AF4,									// Alternate_function_number - AF4
+			OUTPUT_OPEN_DRAIN,						// Output_type - Open drain
+			HIGH_SPEED,								// output_speed - Set High speed
+			PULLUP,									// pullup_pulldown_config - No pullup or pulldown needed since it will come with the sensor
+			DEFAULT_HIGH,							// Keeping the line default High ( No impact since the Pullup resister will anyway pull the line High )
+		},
+
+		// GPIO Pin configurations for SPI1 - For SCK Line
+		{
+		    gpioa_ptr,                              // Register_ptr - Pointer to the structure A
+		    PIN5,                                   // Pin_number - Pin 5 of Port A
+		    PIN_ALTERNATE_FUNCTION,                 // Mode - Alternate function mode
+		    PORTA,                                  // Port_number - Port A
+		    AF5,                                    // Alternate_function_number - AF5 (SPI1_SCK)
+		    OUTPUT_PUSH_PULL,                       // Output_type - Push-pull ( Clock need to be set high and low )
+		    HIGH_SPEED,                             // output_speed - Set High speed
+		    NO_PULLUP_PULLDOWN,                     // pullup_pulldown_config - No pull-up or pull-down
+			DEFAULT_LOW,							// No need to keep it as default High .. Setting it as default Low
+		},
+
+		// GPIO Pin configurations for SPI1 - For MISO Line
+		{
+		    gpioa_ptr,                              // Register_ptr - Pointer to the structure A
+		    PIN6,                                   // Pin_number - Pin 6 of Port A
+		    PIN_ALTERNATE_FUNCTION,                 // Mode - Alternate function mode
+		    PORTA,                                  // Port_number - Port A
+		    AF5,                                    // Alternate_function_number - AF5 (SPI1_MISO)
+		    OUTPUT_PUSH_PULL,                       // Output_type - Not significant for SPI input ( This is input line )
+		    HIGH_SPEED,                             // output_speed - Set High speed
+		    NO_PULLUP_PULLDOWN,                     // pullup_pulldown_config - No pull-up or pull-down
+			DEFAULT_LOW,							// No need to keep it as default High .. Setting it as default Low
+		},
+
+		// GPIO Pin configurations for SPI1 - For MOSI Line
+		{
+		    gpioa_ptr,                              // Register_ptr - Pointer to the structure A
+		    PIN7,                                   // Pin_number - Pin 7 of Port A
+		    PIN_ALTERNATE_FUNCTION,                 // Mode - Alternate function mode
+		    PORTA,                                  // Port_number - Port A
+		    AF5,                                    // Alternate_function_number - AF5 (SPI1_MOSI)
+		    OUTPUT_PUSH_PULL,                       // Output_type - Push-pull
+		    HIGH_SPEED,                             // output_speed - Set High speed
+		    NO_PULLUP_PULLDOWN,                     // pullup_pulldown_config - No pull-up or pull-down
+			DEFAULT_LOW,							// No need to keep it as default High .. Setting it as default Low
+		},
+
+		// GPIO Pin configuration for BMP280 - For CS Line
+		{
+		    gpioa_ptr,                              // Register_ptr - Pointer to the structure A
+		    PIN4,                                   // Pin_number - Pin 4 of Port A
+		    PIN_OUTPUT,                             // Mode - General-purpose output mode
+		    PORTA,                                  // Port_number - Port A
+		    AF_UNDEFINED,                           // Alternate_function_number - Not used for GPIO output
+		    OUTPUT_PUSH_PULL,                       // Output_type - Push-pull
+		    HIGH_SPEED,                             // output_speed - Set High speed
+		    NO_PULLUP_PULLDOWN,                     // pullup_pulldown_config - No pull-up or pull-down
+			DEFAULT_HIGH,							// Making the pin to default high so that CS pin will be high from starting
+		},
+};
+
+const uint8_t gpio_pin_config_size = sizeof(gpio_pin_config)/sizeof(gpio_pin_config[0]);
 
 // ******************************  GPIO Configuration - END   *************************************************************
-
-
-
-
-// ******************************  UART Configuration - START *************************************************************
-
-//const UART_Module_Config uart_config[] = {
-//		{
-//				usart2_ptr,				/// Module pointer UART - Pointer for uart module used
-//				USART_MODULE2,			/// Module number UART - Module number for uart module
-//				9600,					/// Uart_baud rate
-//				0,						/// Uart Oversampling
-//				16000000				/// Clock
-//		}
-//};
-//
-//const uint8_t uart_config_size = sizeof(uart_config)/sizeof(uart_config[0]);
-
-
-// ******************************  UART Configuration - END *************************************************************
-
-
-
-
-// ****************************** WATCHDOG Configuration - START ********************************************************
-
-//const Watchdog_Module_Config watchdog_config = {
-//		iwdg_ptr,				/// Module Poniter
-//		6,						/// Prescalar
-//		10					    /// Watchdog set time
-//};
-
-// ****************************** WATCHDOG Configuration - END **********************************************************
-
-
 
 // ******************************  I2C Configuration - START *************************************************************
 
@@ -78,15 +112,15 @@ const I2C_Config i2c_config[] = {
 				STANDARD_MODE,				// i2c Speed mode - Standard or Fast mode
 				80,							// CCR Value . Calculated based on the formula in datasheet . CCR = PCLK1 / (2 × I2C clock) = 16,000,000 / (2 × 100,000)
 				17,							// Max Rise time. Calculated based on the formula . For standard speed , rise time is frequency + 1 = 16+1
-				ACK_ENABLED,				// Acknoledgement is enabled
-				CLOCK_STRECH_ENABLE,		// Clock streching is enabled
-				ERROR_INTERRUPT_ENABLE,		// Enabled the interrupts logging on errors
+				ACK_ENABLED,				// ack_enable_disable - Ack enabled
+				CLOCK_STRECH_ENABLE,		// clock_strech_enable_disable - Clock streching is enabled
+				ERROR_INTERRUPT_ENABLE,		// error_interrupt_enable_disable - Enabled the interrupts logging on errors
 				16,							// Peripheral clock frequency - 16 Mhz frequency
-				BUFFER_INTERRUPT_DISABLE,	// Buffer interrupt is disabled - We dont need that since we are using DMA
-				EVENT_INTERRUPT_ENABLE,		// Event interrupt is enabeld - We need to check events in ISR to write the next operations
-				DMA_ENABLE,					// Enabled the DMA ( Make sure DMA is configured before enabling it )
-				I2C_ENABLE,					// Enabled I2C . Last step , the peripheral will be working now
-				&dma_stream_config[0],		// DMA_Stream_Config - Pointer to the configuration for DMA stream of I2CRX
+				BUFFER_INTERRUPT_DISABLE,	// buffer_interrupt_enable_disable - Buffer interrupt is disabled - We dont need that since we are using DMA
+				EVENT_INTERRUPT_ENABLE,		// event_interrupt_enable_disable - Event interrupt is enabeld - We need to check events in ISR to write the next operations
+				DMA_ENABLE,					// dma_enable_disable - Enabled the DMA ( Make sure DMA is configured before enabling it )
+				I2C_ENABLE,					// i2c_enable_disable - Enabled I2C . Last step , the peripheral will be working now
+				&dma_stream_config[0],		// dma_config - DMA_Stream_Config - Pointer to the configuration for DMA stream of I2CRX
 				LAST_TRANSFER_ENABLED,		// set_last_enable_disable - Enabled - Enabled / Disabled the last transfer mode in I2C
 		},
 };
@@ -96,6 +130,59 @@ const uint8_t i2c_config_size = sizeof (i2c_config) / sizeof(i2c_config[0]);
 
 // ******************************  I2C Configuration - END *************************************************************
 
+// ******************************  SPI Configuration - START *************************************************************
+
+const SPI_Config spi_config[] = {
+		{
+				SPI1,						// module_number - Using SPI1 for our project ( For configuring BMP280 )
+				spi1_ptr,					// module_pointer - Pointer for the SPI1 Register
+				POLARITY_PHASE0,			// polarity_and_phase - Setting the Polarity to 0 , Phase to 0
+				MASTER_MODE,				// mode - Set the master mode
+				PRESCALAR16,				// prescalar - Setting prescalar 16 ( fclk / 16 )
+				BITFORMART8,				// frame_format - Setting 8 bit frame format
+				SSM_SOFTWARE, 				// ssm_config - Handling SSM through Software
+				SSI_HIGH,					// ssi_config - Default SSI Line
+				SPI_TRANSFER_POLLING,		// SPI_TransferMethod_t - Polling method
+		},
+};
+
+const uint8_t spi_config_size = sizeof (spi_config) / sizeof(spi_config[0]);
+// ******************************  SPI Configuration - END *************************************************************
+
+// ******************************  NVIC Configuration - START *************************************************************
+
+// Init configuration for NVIC Module . Fixed configuration
+const NVIC_Config nvic_config[] =
+{
+		 // DMA interrupt configuration
+	    {
+	    		DMA0_STREAM0_INTERRUPT_NUMBER,					// Interrupt_number 11 - DMA interrupt enable
+				PRIORITY_LEVEL_5,								// Priority
+				INTERRUPT_ENABLE								// Enable / Disable
+	    },
+		// I2C event interrupt configuration
+		{
+				I2C1_EVENT_INTERRUPT_NUMBER,					// Interrupt_number 31 - I2C event interrupt enable
+				PRIORITY_LEVEL_5,								// Priority - 5
+				INTERRUPT_ENABLE								// Enable / Disable - Enable
+		},
+		// I2C error interrupt configuration
+		{
+				I2C1_ERROR_INTERRUPT_NUMBER,					// Interrupt_number 32 - I2C error interrupt enable
+				PRIORITY_LEVEL_5,								// Priority - 5
+				INTERRUPT_ENABLE								// Enable / Disable - Enable
+		},
+		// SPI1 error interrupt configuration
+		{
+				SPI1_INTERRUPT_NUMBER,							// Interrupt_number 35 - SPI Interrupt enable
+				PRIORITY_LEVEL_5,								// Priority - 5
+				INTERRUPT_ENABLE								// Enable / Disable - Enable
+		},
+};
+
+const uint8_t nvic_config_size = sizeof(nvic_config) / sizeof(nvic_config[0]);
+
+// ******************************  NVIC Configuration - START *************************************************************
 
 
 
@@ -138,7 +225,7 @@ const DMA_Stream_Config dma_stream_config[] =
 				DMA1_STREAM0_IC21RX,							// channel_request - Application can request the channel needed , DMA will fetch the suitable channel based on the lookup table
 				PERIPHERAL_TO_MEMORY,							// Direction - Peripheral to memory here since we need to copy the contents from I2C Dr to memory
 				&(i2c1_ptr->DR),								// Peripheral address - The register address from where DMA need to copy the data
-				&mpu_6050_data[0],								// memory_address - The data will be copied to here
+				NULL,											// memory_address - The data will be copied to here
 				6,												// transfer_count - NDTR . Number of bytes to be transferred
 				PERIPHERAL_DATA_REG_8BIT,						// psize - Peripheral data size ( Need to read 8bits from DR at a time)
 				MEMORY_SIZE_8BIT,								// msize - Need to copy 8 bits to the memory at a time
@@ -147,7 +234,8 @@ const DMA_Stream_Config dma_stream_config[] =
 				CIRCULAR_MODE_DISABLE,							// circular_mode - Disabled - No need of circular mode , DMA need to stop after completing the transfer .. we are stoping the i2c as well
 				HIGH_PRIORITY,									// priority - Priority is given as high priority
 				i2c_dma_complete,								// callback_ptr - Function which need to be called after completing i2c dma event
-				&i2c_drivers_configured[0]						// Context - The callback need to get called with context
+				&i2c_runtime_config[0],							// context - Context need to be used while using the callback
+				TCIE_ENABLED,									// TCIE - Enabled the transfer complete interrupt enable - to call the DMA isr
 		},
 };
 

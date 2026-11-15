@@ -15,56 +15,88 @@ uint8_t twelve_s_delay;
 uint32_t button_count;
 
 
-
-
-void nvic_init(uint8_t interrupt_number)
+void nvic_init(const NVIC_Config *config, uint8_t count)
 {
-	switch(interrupt_number)
-	{
+    for (uint8_t i = 0; i < count; i++)
+    {
+        uint8_t interrupt_number = config[i].interrupt_number;
 
-		case 6:
-			/// Setting the priority
-			nvic_ptr->IPR[6] = (5 << 4);
-			// enabling the interrput
-			nvic_ptr->ISER[0] |= ENABLE_EXTIO_INTERRUPT;
-			break;
-		case 28:
-			/// Setting the priority for this interrupt
-			nvic_ptr->IPR[28] = (5 << 4);
-			/// Enabling the interrupt
-			nvic_ptr->ISER[0] |= ENABLE_TIMER2_INTERRUPT;
-			break;
+        nvic_ptr->IPR[interrupt_number] = (config[i].priority << 4);
 
-		case 30:
-			nvic_ptr->ISER[0] |= ENABLE_TIMER4_INTERRUPT;
-			break;
-
-		case 31:
-			/// Setting the priority for this interrupt ( Needed for the Free rtos implimentation )
-			nvic_ptr->IPR[31] = (5 << 4);
-			// Enable the interrupt
-			nvic_ptr->ISER[0] |= ENABLE_I2C1_EVENT_INTERRUPT;
-			break;
-		case 32:
-			/// Setting the priority for this interrupt ( Needed for the Free rtos implimentation )
-			nvic_ptr->IPR[32] = (5 << 4);
-			// Enable the interrupt
-			nvic_ptr->ISER[1] |= ENABLE_I2C1_ERROR_INTERRUPT;
-			break;
-		case 38:
-			nvic_ptr->ISER[1] |= ENABLE_USART2_INTERRUPT;
-			break;
-
-		default:
-			break;
-
-	}
+        if (config[i].enable)
+        {
+            if (interrupt_number < 32)
+            {
+                nvic_ptr->ISER[0] |= (1U << interrupt_number);
+            }
+            else
+            {
+                nvic_ptr->ISER[1] |= (1U << (interrupt_number - 32));
+            }
+        }
+    }
 }
+
+
+
+//void nvic_init(uint8_t interrupt_number)
+//{
+//	switch(interrupt_number)
+//	{
+//
+//		case 6:
+//			/// Setting the priority
+//			nvic_ptr->IPR[6] = (5 << 4);
+//			// enabling the interrput
+//			nvic_ptr->ISER[0] |= ENABLE_EXTIO_INTERRUPT;
+//			break;
+//		case 28:
+//			/// Setting the priority for this interrupt
+//			nvic_ptr->IPR[28] = (5 << 4);
+//			/// Enabling the interrupt
+//			nvic_ptr->ISER[0] |= ENABLE_TIMER2_INTERRUPT;
+//			break;
+//
+//		case 30:
+//			nvic_ptr->ISER[0] |= ENABLE_TIMER4_INTERRUPT;
+//			break;
+//
+//		case 31:
+//			/// Setting the priority for this interrupt ( Needed for the Free rtos implimentation )
+//			nvic_ptr->IPR[31] = (5 << 4);
+//			// Enable the interrupt
+//			nvic_ptr->ISER[0] |= ENABLE_I2C1_EVENT_INTERRUPT;
+//			break;
+//		case 32:
+//			/// Setting the priority for this interrupt ( Needed for the Free rtos implimentation )
+//			nvic_ptr->IPR[32] = (5 << 4);
+//			// Enable the interrupt
+//			nvic_ptr->ISER[1] |= ENABLE_I2C1_ERROR_INTERRUPT;
+//			break;
+//		case 38:
+//			nvic_ptr->ISER[1] |= ENABLE_USART2_INTERRUPT;
+//			break;
+//
+//	    case 11:
+//	        nvic_ptr->IPR[11] = (5 << 4);
+//	        nvic_ptr->ISER[0] |= ENABLE_DMA1_STREAM0_INTERRUPT;
+//	        break;
+//
+//		default:
+//			break;
+//
+//	}
+//}
 
 
 void I2C1_EV_IRQHandler(void)
 {
 	i2c_eventhandler(I2C_1);
+}
+
+void DMA1_Stream0_IRQHandler(void)
+{
+    dma_eventhandler(dma1_ptr,STREAM0);
 }
 
 

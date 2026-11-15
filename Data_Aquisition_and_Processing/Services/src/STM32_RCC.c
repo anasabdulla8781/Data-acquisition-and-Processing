@@ -39,7 +39,7 @@ void usart_clock_enable(uint8_t module_number)
 
 void i2c_clock_enable(uint8_t module)
 {
-	if ((module <= I2C_3) && (module >= I2C_1))
+	if (module <= I2C_3)
 	{
 		rcc_ptr->APB1ENR |= (1<<(21+module));						/// Enabled the clock for I2C1 Module
 	}

@@ -47,8 +47,8 @@ uint8_t app_spi_loopback_test (void)
 	uint8_t rx_byte;
 	/// This is a loopback test . So connect PA6 to PA7 for testing ( Mosi to Miso )
 	gpio_output_operations(gpioa_ptr,SPI1_NSS,SET_LOW);
-	spi_transfer(spi1_ptr, 0xD0); /// To read the ID
-	rx_byte = spi_transfer(spi1_ptr, 0xFF);		// Dummy byte
+	spi_transfer_polling(spi1_ptr, 0xD0); /// To read the ID
+	rx_byte = spi_transfer_polling(spi1_ptr, 0xFF);		// Dummy byte
 	gpio_output_operations(gpioa_ptr,SPI1_NSS,SET_HIGH);
 
 	return rx_byte;
@@ -63,8 +63,8 @@ void app_bmp_280_read_temp(void)
 void app_bmp_read_id (void)
 {
 	gpio_output_operations(gpioa_ptr,SPI1_NSS,SET_LOW);
-	spi_transfer(spi1_ptr, 0xD0); /// To read the ID
-	bmp_280_ID = spi_transfer(spi1_ptr, 0xFF);		// Dummy byte
+	spi_transfer_polling(spi1_ptr, 0xD0); /// To read the ID
+	bmp_280_ID = spi_transfer_polling(spi1_ptr, 0xFF);		// Dummy byte
 	gpio_output_operations(gpioa_ptr,SPI1_NSS,SET_HIGH);
 }
 

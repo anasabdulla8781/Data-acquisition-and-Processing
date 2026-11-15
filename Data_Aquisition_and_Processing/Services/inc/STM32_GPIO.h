@@ -34,6 +34,10 @@ typedef struct GPIO_PinConfig_t				// Init structure for the gpio pins using in 
 	uint8_t mode;
 	uint8_t port_number;
 	uint8_t alternate_function_number;
+	uint8_t output_type;
+	uint8_t output_speed;
+	uint8_t pullup_pulldown_config;
+	uint8_t bit_set_reset;
 }GPIO_PinConfig_t;
 
 
@@ -72,7 +76,7 @@ typedef struct GPIO_PinConfig_t				// Init structure for the gpio pins using in 
 #define PORTA_USER_INPUT_PIN	0
 
 
-/// Macros for pins
+/// Macros for pin_number
 #define PIN0   0
 #define PIN1   1
 #define PIN2   2
@@ -96,50 +100,56 @@ typedef struct GPIO_PinConfig_t				// Init structure for the gpio pins using in 
 #define SET_HIGH		1
 #define SET_TOGGLE		2
 
-/// Macros for modes
+/// Macros for mode
 #define PIN_INPUT					0
 #define PIN_OUTPUT 					1
 #define PIN_ALTERNATE_FUNCTION		2
 #define PIN_ANALOG_INPUT			3
 
-/// Macros for differant alternate modes
-#define AF0	0
-#define AF2	2
-#define AF3	3
-#define AF4	4
-#define AF5	5
-#define AF6	6
-#define AF7	7
-#define AF15	15
-#define AF_INVALID	0XFF
+/// Macros for alternate_function_number
+#define AF0				0
+#define AF2				2
+#define AF3				3
+#define AF4				4
+#define AF5				5
+#define AF6				6
+#define AF7				7
+#define AF15			15
+#define AF_UNDEFINED	0XFF
 
-/// Macros for differant Ports
+/// Macros for port_number
 #define PORTA	0
 #define PORTB	1
 #define PORTC	2
 #define PORTD	3
 
-/// Macros for output types
+/// Macros for Output_type
 #define OUTPUT_PUSH_PULL   0
 #define OUTPUT_OPEN_DRAIN  1
 
-/// Macros for output speed types
+/// Macros for output_speed
 #define LOW_SPEED			0
 #define MEDIUM_SPEED		1
 #define HIGH_SPEED			2
 #define VERY_HIGH_SPEED		3
+#define SPEED_UNDEFINED		0xFF
 
-/// Macros for pull up and pull down configuraions
-#define NO_PULLUP_PULLDOWN		0
-#define PULLUP					1
-#define PULLDOWN				2
-#define RESERVED				3
+/// Macros for pullup_pulldown_config
+#define NO_PULLUP_PULLDOWN						0
+#define PULLUP									1
+#define PULLDOWN								2
+#define RESERVED								3
+#define PULLUP_PULLDOWN_UNDEFINED				0xFF
 
 /// Macros for SPI1 Pins
 #define SPI1_NSS	4
 #define SPI1_SCLK	5
 #define SPI1_MISO	6
 #define SPI1_MOSI	7
+
+/// Macros for bit_set_reset
+#define DEFAULT_HIGH	1
+#define DEFAULT_LOW		0
 
 
 /// FUNCTION DECLARATIONS
@@ -149,8 +159,7 @@ extern void gpio_set_alternate_function(GPIO_structure* gpio_ptr , uint8_t pin_n
 extern void gpio_set_output_type(GPIO_structure* gpio_ptr , uint8_t pin_number , uint8_t output_type);
 extern void gpio_set_output_speed(GPIO_structure* gpio_ptr , uint8_t pin_number , uint8_t output_speed);
 extern void gpio_set_pullup_pulldown(GPIO_structure* gpio_ptr , uint8_t pin_number , uint8_t pullup_down_value);
-extern void gpio_i2c_config(void);
-extern void gpio_spi1_config(void);
+extern void gpio_bit_set_reset(GPIO_structure* gpio_ptr , uint8_t pin_number , uint8_t bit_set_reset);
 
 /// Making generic init for all
 extern void gpio_init(const GPIO_PinConfig_t* config ,  const uint8_t size);
