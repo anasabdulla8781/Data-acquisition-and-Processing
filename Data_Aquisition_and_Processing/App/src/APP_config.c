@@ -67,7 +67,7 @@ const GPIO_PinConfig_t gpio_pin_config[] = {
 		    AF5,                                    // Alternate_function_number - AF5 (SPI1_MISO)
 		    OUTPUT_PUSH_PULL,                       // Output_type - Not significant for SPI input ( This is input line )
 		    HIGH_SPEED,                             // output_speed - Set High speed
-		    NO_PULLUP_PULLDOWN,                     // pullup_pulldown_config - No pull-up or pull-down
+			PULLUP,                     			// pullup_pulldown_config - No pull-up or pull-down
 			DEFAULT_LOW,							// No need to keep it as default High .. Setting it as default Low
 		},
 
@@ -80,7 +80,7 @@ const GPIO_PinConfig_t gpio_pin_config[] = {
 		    AF5,                                    // Alternate_function_number - AF5 (SPI1_MOSI)
 		    OUTPUT_PUSH_PULL,                       // Output_type - Push-pull
 		    HIGH_SPEED,                             // output_speed - Set High speed
-		    NO_PULLUP_PULLDOWN,                     // pullup_pulldown_config - No pull-up or pull-down
+			PULLUP,                     			// pullup_pulldown_config - No pull-up or pull-down
 			DEFAULT_LOW,							// No need to keep it as default High .. Setting it as default Low
 		},
 
