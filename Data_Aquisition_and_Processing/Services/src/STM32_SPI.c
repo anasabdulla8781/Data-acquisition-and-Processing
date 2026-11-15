@@ -26,6 +26,8 @@ void spi_init(const SPI_Config* config , const uint8_t module_count )
 	{
 		if (config[iter].module_pointer != NULL)
 		{
+			/* Common Configuration for the module */
+
 			spi_structure* module_pointer = config[iter].module_pointer;
 			// Set the SPI Clock ( Clock enable )
 			spi_clock_enable(config[iter].module_number);
@@ -43,6 +45,35 @@ void spi_init(const SPI_Config* config , const uint8_t module_count )
 			spi_set_software_slave_management(module_pointer , config[iter].ssm_config);
 			// Set the slave select initial value
 			spi_set_internal_slave_select(module_pointer , config[iter].ssi_config);
+
+			/* Trasmission method based configurations */
+
+			switch(config[iter].transfer_method)
+			{
+			uint8_t mask;
+			case SPI_TRANSFER_POLLING:
+				// Disable the interrupts and Disable the DMA request
+				// TXEIE = 0 | RXNEIE = 0 | ERRIE = 0 | TXDMAEN = 0 | RXDMAEN = 0
+				mask = (0 << 7) | (0 << 6) | (0 << 5) | (0 << 1) | (0 << 0);
+				spi_set_transfer_method(module_pointer , mask);
+				break;
+			case SPI_TRANSFER_INTERRUPT:
+				// Enable the interrupts and Disable the DMA request
+				// TXEIE = 1 | RXNEIE = 1 | ERRIE = 1 | TXDMAEN = 0 | RXDMAEN = 0
+				mask = (1 << 7) | (1 << 6) | (1 << 5) | (0 << 1) | (0 << 0);
+				spi_set_transfer_method(module_pointer , mask);
+				break;
+			case SPI_TRANSFER_DMA:
+				// Enable the interrupts and Enable the DMA request
+				// TXEIE = 1 | RXNEIE = 1 | ERRIE = 1 | TXDMAEN = 1 | RXDMAEN = 1
+				mask = (1 << 7) | (1 << 6) | (1 << 5) | (1 << 1) | (1 << 0);
+				spi_set_transfer_method(module_pointer , mask);
+				break;
+
+			default:
+				// Invalid configurations
+				break;
+			}
 			// Enable SPI
 			spi_enable(module_pointer);
 		}
@@ -121,6 +152,12 @@ void spi_set_internal_slave_select(spi_structure *module_pointer, uint8_t ssi_co
 
     module_pointer->CR1 &= ~(0x01U << 8);						// Clear SSI bit
     module_pointer->CR1 |= ((uint32_t)ssi_config << 8);			// Set SSI bit
+}
+
+void spi_set_transfer_method(spi_structure *module_pointer , uint8_t mask)
+{
+	module_pointer->CR2 = 0u;								    // Cleared full register
+	module_pointer->CR2 |= mask;								// Setup the CR2 Register based on how the transfer happen
 }
 
 void spi_enable(spi_structure* module_pointer)

@@ -142,6 +142,7 @@ const SPI_Config spi_config[] = {
 				BITFORMART8,				// frame_format - Setting 8 bit frame format
 				SSM_SOFTWARE, 				// ssm_config - Handling SSM through Software
 				SSI_HIGH,					// ssi_config - Default SSI Line
+				SPI_TRANSFER_POLLING,		// SPI_TransferMethod_t - Polling method
 		},
 };
 
@@ -168,6 +169,12 @@ const NVIC_Config nvic_config[] =
 		// I2C error interrupt configuration
 		{
 				I2C1_ERROR_INTERRUPT_NUMBER,					// Interrupt_number 32 - I2C error interrupt enable
+				PRIORITY_LEVEL_5,								// Priority - 5
+				INTERRUPT_ENABLE								// Enable / Disable - Enable
+		},
+		// SPI1 error interrupt configuration
+		{
+				SPI1_INTERRUPT_NUMBER,							// Interrupt_number 35 - SPI Interrupt enable
 				PRIORITY_LEVEL_5,								// Priority - 5
 				INTERRUPT_ENABLE								// Enable / Disable - Enable
 		},

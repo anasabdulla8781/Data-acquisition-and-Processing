@@ -44,6 +44,14 @@ typedef struct
 	uint8_t clock_pin;
 }spi_device;
 
+
+typedef enum
+{
+    SPI_TRANSFER_POLLING = 0,
+    SPI_TRANSFER_INTERRUPT,
+    SPI_TRANSFER_DMA
+} SPI_TransferMethod_t;
+
 typedef struct
 {
 	uint8_t module_number;
@@ -54,6 +62,7 @@ typedef struct
 	uint8_t frame_format;
 	uint8_t ssm_config;
 	uint8_t ssi_config;
+	SPI_TransferMethod_t transfer_method;
 }SPI_Config;
 
 
@@ -118,5 +127,6 @@ extern void spi_set_frameformat (spi_structure* module_pointer , uint8_t frame_f
 extern void spi_set_software_slave_management(spi_structure *module_pointer, uint8_t ssm_config);
 extern void spi_set_internal_slave_select(spi_structure *module_pointer, uint8_t ssi_config);
 extern void spi_enable(spi_structure* module_pointer);
+extern void spi_set_transfer_method(spi_structure *module_pointer , uint8_t mask);
 
 #endif /* INC_STM32_SPI_H_ */

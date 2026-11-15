@@ -185,8 +185,8 @@ int main(void)
     	test ++;
     	if (test == 600000)
     	{
-
-    		bmp280_burst_read(&spi1_config, 0xD0, &chip_id, 1);
+//    		bmp280_init();
+//    		bmp280_burst_read(&spi1_config, 0xD0, &chip_id, 1);
 //    		bmp280_get_temperature();
 //    		i2c_start(transaction_6050_who_am_i);
     		test = 0;
